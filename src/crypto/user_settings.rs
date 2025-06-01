@@ -5,18 +5,6 @@ use sha2::Sha256;
 use zeroize::Zeroizing;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RequestParam {
-    pub key: &'static str,
-    pub value: String,
-}
-
-impl RequestParam {
-    pub fn new(key: &'static str, value: String) -> Self {
-        Self { key, value }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserSettings {
     pub(crate) api_key: Zeroizing<String>,
     pub(crate) secret: SecStr,
@@ -36,14 +24,14 @@ impl UserSettings {
 
     pub fn generate_signature(
         &self,
-        params: &mut [RequestParam],
+        params: &mut [(&'static str, String)],
     ) -> Result<Zeroizing<String>, CryptoError> {
         if params.len() == 0 {
             return Err(CryptoError::ParamsEmpty);
         }
-        params.sort_by(|lhs, rhs| lhs.key.cmp(rhs.key));
+        params.sort_by(|lhs, rhs| lhs.0.cmp(rhs.0));
 
-        let mut pairs = params.iter().map(|x| format!("{}={}", x.key, x.value));
+        let mut pairs = params.iter().map(|x| format!("{}={}", x.0, x.1));
 
         let mut query_string = pairs.next().unwrap();
         while let Some(pair) = pairs.next() {
