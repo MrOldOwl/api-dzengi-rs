@@ -1,13 +1,89 @@
+use super::DzengiRestClient;
+use crate::{
+    errors::DzengiRestClientResult,
+    help::{AutoToJson, timestamp_now},
+    models::AccountResponse,
+    switch_url,
+};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AccountInfoRequest {
+    show_zero_balance: bool,
+    recv_window: u64,
+}
+impl Default for AccountInfoRequest {
+    fn default() -> Self {
+        Self {
+            show_zero_balance: false,
+            recv_window: 5000,
+        }
+    }
+}
+impl AccountInfoRequest {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn with_show_zero(mut self, zero_balance: bool) -> Self {
+        self.show_zero_balance = zero_balance;
+        self
+    }
+
+    pub fn with_recv_window(mut self, recv_window: u64) -> Self {
+        self.recv_window = recv_window;
+        self
+    }
+}
+
+impl DzengiRestClient {
+    pub async fn account_info(
+        &self,
+        request: AccountInfoRequest,
+    ) -> DzengiRestClientResult<AccountResponse> {
+        let settings = self.settings()?;
+
+        let url = switch_url!("/api/v1/account", self.demo);
+        let timestamp = timestamp_now()?.to_string();
+        let show_zero_balance = request.show_zero_balance.to_string();
+        let recv_window = request.recv_window.to_string();
+
+        let mut params = [
+            ("timestamp", timestamp),
+            ("showZeroBalance", show_zero_balance),
+            ("recvWindow", recv_window),
+        ];
+
+        let signature = settings.generate_signature(params.as_mut_slice())?;
+
+        self.client
+            .get(url)
+            .header("X-MBX-APIKEY", settings.api_key.as_str())
+            .query(&params)
+            .query(&[("signature", signature.as_str())])
+            .send_and_json()
+            .await
+    }
+}
+
 #[cfg(test)]
 mod test {
     use env_file_reader::read_file;
 
-    #[test]
-    fn test() {
+    use crate::{
+        crypto::UserSettings,
+        rest_api::{AccountInfoRequest, DzengiRestClient},
+    };
+
+    #[tokio::test]
+    async fn test() {
         let ent_file = read_file(".env").unwrap();
         let api_key = ent_file["API_KEY"].clone();
         let secret = ent_file["SECRET"].clone();
 
-        println!("API: {api_key}, SECRET: {secret}");
+        let rest = DzengiRestClient::new()
+            .with_user_settings(Some(UserSettings::new(api_key.as_str(), secret.as_str())));
+
+        let info = rest.account_info(AccountInfoRequest::new()).await.unwrap();
+        println!("Info: {:?}", info);
     }
 }
