@@ -11,6 +11,10 @@ pub struct UserSettings {
 }
 
 impl UserSettings {
+    pub fn api_header(&self) -> &'static str {
+        "X-MBX-APIKEY"
+    }
+
     pub fn new(api_key: &str, secret: &str) -> Self {
         Self::from_sec(api_key.into(), secret.into())
     }

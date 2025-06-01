@@ -57,7 +57,7 @@ impl DzengiRestClient {
 
         self.client
             .get(url)
-            .header("X-MBX-APIKEY", settings.api_key.as_str())
+            .header(settings.api_header(), settings.api_key.as_str())
             .query(&params)
             .query(&[("signature", signature.as_str())])
             .send_and_json()
