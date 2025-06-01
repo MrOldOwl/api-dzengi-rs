@@ -1,7 +1,7 @@
 use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
-    help::{AutoToJson, timestamp_now},
+    help::{AutoToJson, DefaultKeys, timestamp_now},
     models::AccountResponse,
     switch_url,
 };
@@ -48,7 +48,7 @@ impl DzengiRestClient {
         let recv_window = request.recv_window.to_string();
 
         let mut params = [
-            ("timestamp", timestamp),
+            (DefaultKeys::timestamp(), timestamp),
             ("showZeroBalance", show_zero_balance),
             ("recvWindow", recv_window),
         ];
@@ -57,9 +57,9 @@ impl DzengiRestClient {
 
         self.client
             .get(url)
-            .header(settings.api_header(), settings.api_key.as_str())
+            .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(&params)
-            .query(&[("signature", signature.as_str())])
+            .query(&[(DefaultKeys::signature(), signature.as_str())])
             .send_and_json()
             .await
     }
