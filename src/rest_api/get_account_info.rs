@@ -43,7 +43,7 @@ impl DzengiRestClient {
         let settings = self.settings()?;
 
         let url = switch_url!("/api/v1/account", self.demo);
-        let timestamp = timestamp_now()?.to_string();
+        let timestamp = timestamp_now(self.correction_time)?.to_string();
         let show_zero_balance = request.show_zero_balance.to_string();
         let recv_window = request.recv_window.to_string();
 
@@ -80,8 +80,10 @@ mod test {
         let api_key = ent_file["API_KEY"].clone();
         let secret = ent_file["SECRET"].clone();
 
-        let rest = DzengiRestClient::new()
+        let mut rest = DzengiRestClient::new()
             .with_user_settings(Some(UserSettings::new(api_key.as_str(), secret.as_str())));
+
+        rest.with_correction_time_req().await.unwrap();
 
         let info = rest.account_info(AccountInfoRequest::new()).await.unwrap();
         println!("Info: {:?}", info);
