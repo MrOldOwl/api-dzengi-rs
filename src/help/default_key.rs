@@ -1,6 +1,10 @@
 pub struct DefaultKeys;
 
 impl DefaultKeys {
+    pub fn symbol() -> &'static str {
+        "symbol"
+    }
+
     pub fn timestamp() -> &'static str {
         "timestamp"
     }

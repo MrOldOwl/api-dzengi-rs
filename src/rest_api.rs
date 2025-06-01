@@ -8,7 +8,8 @@ use crate::{
 
 auto_import_models! {
     get_account_info,
-    get_server_time
+    get_server_time,
+    get_trades_aggregated
 }
 
 #[derive(Debug, Default, Clone)]

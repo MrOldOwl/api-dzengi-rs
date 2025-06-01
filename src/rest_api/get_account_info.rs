@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
@@ -6,10 +8,10 @@ use crate::{
     switch_url,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AccountInfoRequest {
-    show_zero_balance: bool,
-    recv_window: u64,
+    pub show_zero_balance: bool,
+    pub recv_window: u64,
 }
 impl Default for AccountInfoRequest {
     fn default() -> Self {
