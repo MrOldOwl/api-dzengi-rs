@@ -1,18 +1,14 @@
-use reqwest::Error;
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
-
 use crate::{auto_import_models, crypto::UserSettings};
+use serde::de::DeserializeOwned;
 
 auto_import_models! {
-    get_account_info
+    get_account_info,
+    get_server_time
 }
-
-const BASE_URL: &'static str = "https://api-adapter.dzengi.com/";
-const DEMO_URL: &'static str = "https://demo-api-adapter.dzengi.com/";
 
 #[derive(Debug, Default, Clone)]
 pub struct DzengiRestClient {
-    url: &'static str,
+    demo: bool,
     settings: Option<UserSettings>,
     client: reqwest::Client,
 }
@@ -20,18 +16,18 @@ pub struct DzengiRestClient {
 impl DzengiRestClient {
     pub fn new() -> Self {
         Self {
-            url: BASE_URL,
+            demo: false,
             ..Default::default()
         }
     }
 
     pub fn base_url(mut self) -> Self {
-        self.url = BASE_URL;
+        self.demo = false;
         self
     }
 
     pub fn demo_url(mut self) -> Self {
-        self.url = DEMO_URL;
+        self.demo = true;
         self
     }
 
@@ -40,12 +36,13 @@ impl DzengiRestClient {
         self
     }
 
-    async fn request_get<T: DeserializeOwned>(
+    async fn get<T: DeserializeOwned>(
         &self,
+        url: &str,
         params: &[(&str, String)],
-    ) -> Result<T, Error> {
+    ) -> Result<T, reqwest::Error> {
         self.client
-            .get(self.url)
+            .get(url)
             .query(params)
             .send()
             .await?

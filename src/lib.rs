@@ -14,3 +14,14 @@ macro_rules! auto_import_models {
         )*
     };
 }
+
+#[macro_export]
+macro_rules! switch_url {
+    ($path:expr, $flag:expr) => {
+        if $flag {
+            concat!("https://demo-api-adapter.dzengi.com", $path)
+        } else {
+            concat!("https://api-adapter.dzengi.com", $path)
+        }
+    };
+}
