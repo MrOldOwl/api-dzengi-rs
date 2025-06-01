@@ -3,7 +3,7 @@ use super::AccountBalance;
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AccountResponse {
-    pub affiliated: String,
+    pub affiliated_id: Option<String>,
     pub balances: Vec<AccountBalance>,
     pub buyer_commission: f64,
     pub can_deposit: bool,
