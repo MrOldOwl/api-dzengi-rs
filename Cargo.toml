@@ -7,12 +7,13 @@ edition = "2024"
 
 [dev-dependencies]
 env-file-reader = { version = "^0.3" }
+tokio = { version = "^1", features = ["macros", "test-util"] }
 
 [dependencies]
 thiserror = { version = "^2.0" }
 hex = { version = "^0.4" }
 reqwest = { version = "^0.12", features = ["json"] }
-tokio = { version = "^1", features = ["sync", "macros", "test-util"] }
+tokio = { version = "^1", features = ["sync"] }
 hmac = { version = "^0.12" }
 sha2 = { version = "^0.10" }
 secstr = { version = "^0.5" }
