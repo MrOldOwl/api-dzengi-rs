@@ -1,11 +1,10 @@
 use super::DzengiRestClient;
-use crate::{errors::DzengiRestClientResult, models::ServerTime, switch_url};
+use crate::{errors::DzengiRestClientResult, help::AutoToJson, models::ServerTime, switch_url};
 
 impl DzengiRestClient {
     pub async fn server_time(&self) -> DzengiRestClientResult<ServerTime> {
         let url = switch_url!("/api/v2/time", self.demo);
-        let time: ServerTime = self.get(url, &[]).await?;
-        Ok(time)
+        self.client.get(url).send_and_json().await
     }
 }
 
