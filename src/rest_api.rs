@@ -1,5 +1,8 @@
-use crate::{auto_import_models, crypto::UserSettings};
-use serde::de::DeserializeOwned;
+use crate::{
+    auto_import_models,
+    crypto::UserSettings,
+    errors::{DzengiRestClientError, DzengiRestClientResult},
+};
 
 auto_import_models! {
     get_account_info,
@@ -36,17 +39,9 @@ impl DzengiRestClient {
         self
     }
 
-    async fn get<T: DeserializeOwned>(
-        &self,
-        url: &str,
-        params: &[(&str, String)],
-    ) -> Result<T, reqwest::Error> {
-        self.client
-            .get(url)
-            .query(params)
-            .send()
-            .await?
-            .json::<T>()
-            .await
+    fn settings(&self) -> DzengiRestClientResult<&UserSettings> {
+        self.settings
+            .as_ref()
+            .ok_or(DzengiRestClientError::NoneUserSettings)
     }
 }
