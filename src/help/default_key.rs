@@ -20,4 +20,8 @@ impl DefaultKeys {
     pub fn signature() -> &'static str {
         "signature"
     }
+
+    pub fn empty_item() -> (&'static str, String) {
+        ("", String::new())
+    }
 }

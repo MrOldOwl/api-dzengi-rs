@@ -11,7 +11,8 @@ auto_import_models! {
     get_trades_aggregated,
     post_close_trading_position,
     get_currencies,
-    get_deposit_address
+    get_deposit_address,
+    get_deposits
 }
 
 #[derive(Debug, Default, Clone)]

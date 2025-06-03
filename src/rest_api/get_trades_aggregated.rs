@@ -74,7 +74,9 @@ mod test {
 
     #[tokio::test]
     async fn test() {
-        let rest = DzengiRestClient::new();
+        let mut rest = DzengiRestClient::new();
+
+        rest.calc_correction_with_server().await.unwrap();
 
         let agg = rest
             .trades_aggregated(
