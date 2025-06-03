@@ -1,4 +1,5 @@
 use super::CryptoError;
+use crate::errors::CorrectionTimeError;
 use std::fmt::Display;
 use thiserror::Error;
 
@@ -31,4 +32,6 @@ pub enum DzengiRestClientError {
     DzengiCorrect(DzengiCorrectError),
     #[error("{0}")]
     Serde(#[from] serde_json::Error),
+    #[error("{0}")]
+    CorrectionTime(#[from] CorrectionTimeError),
 }

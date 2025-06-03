@@ -1,9 +1,8 @@
 use crate::{
     auto_import_models,
+    correction_local_time::{CorrectionLocalTime, CorrectionTime},
     crypto::UserSettings,
-    enums::CorrectionLocalTime,
     errors::{DzengiRestClientError, DzengiRestClientResult},
-    help::timestamp_now,
 };
 
 auto_import_models! {
@@ -11,7 +10,8 @@ auto_import_models! {
     get_server_time,
     get_trades_aggregated,
     post_close_trading_position,
-    get_currencies
+    get_currencies,
+    get_deposit_address
 }
 
 #[derive(Debug, Default, Clone)]
@@ -47,21 +47,31 @@ impl DzengiRestClient {
         self
     }
 
-    pub async fn with_correction_time_req(&mut self) -> DzengiRestClientResult<()> {
-        let local_time = timestamp_now(CorrectionLocalTime::None)?;
-        let server_time = self.server_time().await?.server_time;
-        self.correction_time = match local_time.cmp(&server_time) {
-            std::cmp::Ordering::Equal => CorrectionLocalTime::None,
-            std::cmp::Ordering::Less => CorrectionLocalTime::Add(server_time - local_time),
-            std::cmp::Ordering::Greater => CorrectionLocalTime::Sub(local_time - server_time),
-        };
-        Ok(())
-    }
-
     fn settings(&self) -> DzengiRestClientResult<&UserSettings> {
         self.settings
             .as_ref()
             .ok_or(DzengiRestClientError::NoneUserSettings)
+    }
+
+    pub fn correction_time(&self) -> &CorrectionLocalTime {
+        &self.correction_time
+    }
+
+    pub fn correction_time_mut(&mut self) -> &mut CorrectionLocalTime {
+        &mut self.correction_time
+    }
+
+    pub async fn calc_correction_with_server(&mut self) -> DzengiRestClientResult<()> {
+        self.correction_time.with_correction(CorrectionTime::None);
+        let local_time = self.correction_time.timestamp_now()?;
+        let server_time = self.server_time().await?.server_time;
+        self.correction_time
+            .with_correction(match local_time.cmp(&server_time) {
+                std::cmp::Ordering::Equal => CorrectionTime::None,
+                std::cmp::Ordering::Less => CorrectionTime::Add(server_time - local_time),
+                std::cmp::Ordering::Greater => CorrectionTime::Sub(local_time - server_time),
+            });
+        Ok(())
     }
 }
 
@@ -73,7 +83,7 @@ mod test {
     async fn correction() {
         let mut rest = DzengiRestClient::new();
 
-        rest.with_correction_time_req().await.unwrap();
+        rest.calc_correction_with_server().await.unwrap();
         println!("Correction: {:?}", rest.correction_time);
     }
 }

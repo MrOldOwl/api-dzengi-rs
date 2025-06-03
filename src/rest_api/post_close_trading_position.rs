@@ -1,7 +1,7 @@
 use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
-    help::{AutoToJson, DefaultKeys, timestamp_now},
+    help::{AutoToJson, DefaultKeys},
     models::TradingPositionCloseAllResponse,
     switch_url,
 };
@@ -34,7 +34,7 @@ impl DzengiRestClient {
         let settings = self.settings()?;
 
         let url = switch_url!("/api/v1/closeTradingPosition", self.demo);
-        let timestamp = timestamp_now(self.correction_time)?.to_string();
+        let timestamp = self.correction_time.timestamp_now()?.to_string();
         let recv_window = request.recv_window.to_string();
 
         let mut params = [
@@ -73,7 +73,7 @@ mod test {
         let mut rest =
             DzengiRestClient::new().with_user_settings(Some(UserSettings::new(api_key, secret)));
 
-        rest.with_correction_time_req().await.unwrap();
+        rest.calc_correction_with_server().await.unwrap();
 
         let response = rest
             .close_trading_position(CloseTradingPositionRequest::new("".into()))

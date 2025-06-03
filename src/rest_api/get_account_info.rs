@@ -1,7 +1,7 @@
 use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
-    help::{AutoToJson, DefaultKeys, timestamp_now},
+    help::{AutoToJson, DefaultKeys},
     models::AccountResponse,
     switch_url,
 };
@@ -44,7 +44,7 @@ impl DzengiRestClient {
         let settings = self.settings()?;
 
         let url = switch_url!("/api/v1/account", self.demo);
-        let timestamp = timestamp_now(self.correction_time)?.to_string();
+        let timestamp = self.correction_time.timestamp_now()?.to_string();
         let show_zero_balance = request.show_zero_balance.to_string();
         let recv_window = request.recv_window.to_string();
 
@@ -84,7 +84,7 @@ mod test {
         let mut rest =
             DzengiRestClient::new().with_user_settings(Some(UserSettings::new(api_key, secret)));
 
-        rest.with_correction_time_req().await.unwrap();
+        rest.calc_correction_with_server().await.unwrap();
 
         let info = rest.account_info(AccountInfoRequest::new()).await.unwrap();
         println!("Info: {:?}", info);

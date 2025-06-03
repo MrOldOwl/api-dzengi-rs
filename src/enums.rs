@@ -19,6 +19,5 @@ auto_import_models! {
     request_type,
     side,
     symbol_status,
-    time_in_force,
-    correction_local_time
+    time_in_force
 }

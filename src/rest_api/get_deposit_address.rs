@@ -7,18 +7,17 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CurrenciesRequest {
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DepositAddressRequest {
+    pub coin: String,
     pub recv_window: u64,
 }
-impl Default for CurrenciesRequest {
-    fn default() -> Self {
-        Self { recv_window: 5000 }
-    }
-}
-impl CurrenciesRequest {
-    pub fn new() -> Self {
-        Self::default()
+impl DepositAddressRequest {
+    pub fn new(coin: String) -> Self {
+        Self {
+            coin,
+            recv_window: 5000,
+        }
     }
     pub fn with_recv_window(mut self, recv_window: u64) -> Self {
         self.recv_window = recv_window;
@@ -27,19 +26,20 @@ impl CurrenciesRequest {
 }
 
 impl DzengiRestClient {
-    pub async fn currencies(
+    pub async fn deposit_address(
         &self,
-        request: CurrenciesRequest,
+        request: DepositAddressRequest,
     ) -> DzengiRestClientResult<Vec<CurrencyDtoResponse>> {
         let settings = self.settings()?;
 
-        let url = switch_url!("/api/v1/currencies", self.demo);
+        let url = switch_url!("/api/v1/depositAddress", self.demo);
         let timestamp = self.correction_time.timestamp_now()?.to_string();
         let recv_window = request.recv_window.to_string();
 
         let mut params = [
             (DefaultKeys::timestamp(), timestamp),
             (DefaultKeys::recv_window(), recv_window),
+            ("coin", request.coin),
         ];
 
         let signature = settings.generate_signature(params.as_mut_slice())?;
@@ -60,7 +60,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{CurrenciesRequest, DzengiRestClient},
+        rest_api::{DepositAddressRequest, DzengiRestClient},
     };
 
     #[tokio::test]
@@ -74,7 +74,11 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        let currencies = rest.currencies(CurrenciesRequest::new()).await.unwrap();
+        let currencies = rest
+            .deposit_address(DepositAddressRequest::new("".into()))
+            .await
+            .unwrap();
+
         println!("Currencies: {:?}", &currencies[0..10]);
     }
 }
