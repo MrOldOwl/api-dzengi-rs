@@ -1,13 +1,11 @@
-use serde::{Deserialize, Serialize};
-
+use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys},
     models::AggTrades,
     switch_url,
 };
-
-use super::DzengiRestClient;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TradesAggregatedRequest {
