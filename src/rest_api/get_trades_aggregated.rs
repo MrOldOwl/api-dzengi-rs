@@ -74,17 +74,15 @@ mod test {
 
     #[tokio::test]
     async fn test() {
-        let mut rest = DzengiRestClient::new();
+        let rest = DzengiRestClient::new();
 
-        rest.calc_correction_with_server().await.unwrap();
-
-        let agg = rest
+        let resp = rest
             .trades_aggregated(
                 TradesAggregatedRequest::new("BTC/USD_LEVERAGE".into()).with_limit(Some(10)),
             )
             .await
             .unwrap();
 
-        println!("{:?}", agg)
+        println!("{:?}", resp)
     }
 }

@@ -74,7 +74,7 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        let currencies = rest.currencies(CurrenciesRequest::new()).await.unwrap();
-        println!("Currencies: {:?}", &currencies[0..10]);
+        let resp = rest.currencies(CurrenciesRequest::new()).await.unwrap();
+        println!("Currencies: {:?}", &resp[0..10]);
     }
 }

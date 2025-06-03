@@ -3,5 +3,5 @@
 pub struct DepthResponse {
     pub asks: Vec<Vec<f64>>,
     pub bids: Vec<Vec<f64>>,
-    pub last_updated: i64,
+    pub last_update_id: i64,
 }

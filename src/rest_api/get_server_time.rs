@@ -15,7 +15,7 @@ mod test {
     #[tokio::test]
     async fn test() {
         let rest = DzengiRestClient::new();
-        let time = rest.server_time().await.unwrap();
-        println!("{:?}", time);
+        let resp = rest.server_time().await.unwrap();
+        println!("{:?}", resp);
     }
 }

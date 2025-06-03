@@ -74,11 +74,11 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        let currencies = rest
+        let resp = rest
             .deposit_address(DepositAddressRequest::new("BTC".into()))
             .await
             .unwrap();
 
-        println!("Currencies: {:?}", currencies);
+        println!("Currencies: {:?}", resp);
     }
 }

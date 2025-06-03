@@ -75,11 +75,11 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        let response = rest
+        let resp = rest
             .close_trading_position(CloseTradingPositionRequest::new("".into()))
             .await;
 
-        match response {
+        match resp {
             Err(x) => {
                 println!("{x:?}");
                 assert!(true)
