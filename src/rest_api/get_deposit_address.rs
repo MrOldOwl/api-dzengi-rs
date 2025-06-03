@@ -2,7 +2,7 @@ use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys},
-    models::CurrencyDtoResponse,
+    models::BlockchainAddressResponse,
     switch_url,
 };
 use serde::{Deserialize, Serialize};
@@ -29,7 +29,7 @@ impl DzengiRestClient {
     pub async fn deposit_address(
         &self,
         request: DepositAddressRequest,
-    ) -> DzengiRestClientResult<Vec<CurrencyDtoResponse>> {
+    ) -> DzengiRestClientResult<BlockchainAddressResponse> {
         let settings = self.settings()?;
 
         let url = switch_url!("/api/v1/depositAddress", self.demo);
@@ -75,10 +75,10 @@ mod test {
         rest.calc_correction_with_server().await.unwrap();
 
         let currencies = rest
-            .deposit_address(DepositAddressRequest::new("".into()))
+            .deposit_address(DepositAddressRequest::new("BTC".into()))
             .await
             .unwrap();
 
-        println!("Currencies: {:?}", &currencies[0..10]);
+        println!("Currencies: {:?}", currencies);
     }
 }
