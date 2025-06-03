@@ -2,7 +2,7 @@ use super::{ExchangeFilter, ExchangeSymbolInfo, RateLimits};
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ExchangeInfo {
+pub struct ExchangeInfoResponse {
     pub exchange_filters: Vec<ExchangeFilter>,
     pub rate_limits: Vec<RateLimits>,
     pub server_time: i64,

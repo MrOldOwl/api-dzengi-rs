@@ -24,7 +24,7 @@ auto_import_models! {
     edit_exchange_order_response,
     empty_request,
     exchange_filter,
-    exchange_info,
+    exchange_info_response,
     exchange_symbol_info,
     funding_limits_dto_response_ws,
     funding_limits_dto_response,

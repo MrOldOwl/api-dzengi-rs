@@ -13,7 +13,8 @@ auto_import_models! {
     get_currencies,
     get_deposit_address,
     get_deposits,
-    get_depth
+    get_depth,
+    exchange_info
 }
 
 #[derive(Debug, Default, Clone)]
