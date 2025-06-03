@@ -39,8 +39,8 @@ impl DzengiRestClient {
 
         let mut params = [
             (DefaultKeys::timestamp(), timestamp),
+            (DefaultKeys::recv_window(), recv_window),
             ("positionId", request.position_id),
-            ("recvWindow", recv_window),
         ];
 
         let signature = settings.generate_signature(params.as_mut_slice())?;
@@ -70,8 +70,8 @@ mod test {
         let api_key = ent_file["API_KEY"].clone();
         let secret = ent_file["SECRET"].clone();
 
-        let mut rest = DzengiRestClient::new()
-            .with_user_settings(Some(UserSettings::new(api_key.as_str(), secret.as_str())));
+        let mut rest =
+            DzengiRestClient::new().with_user_settings(Some(UserSettings::new(api_key, secret)));
 
         rest.with_correction_time_req().await.unwrap();
 

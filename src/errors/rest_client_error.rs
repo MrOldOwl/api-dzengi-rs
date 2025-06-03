@@ -29,4 +29,6 @@ pub enum DzengiRestClientError {
     DzengiUncorrected(String),
     #[error("{0}")]
     DzengiCorrect(DzengiCorrectError),
+    #[error("{0}")]
+    Serde(#[from] serde_json::Error),
 }

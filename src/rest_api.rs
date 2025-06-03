@@ -10,7 +10,8 @@ auto_import_models! {
     get_account_info,
     get_server_time,
     get_trades_aggregated,
-    post_close_trading_position
+    post_close_trading_position,
+    get_currencies
 }
 
 #[derive(Debug, Default, Clone)]

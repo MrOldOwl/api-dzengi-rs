@@ -11,8 +11,8 @@ pub struct UserSettings {
 }
 
 impl UserSettings {
-    pub fn new(api_key: &str, secret: &str) -> Self {
-        Self::from_sec(api_key.into(), secret.into())
+    pub fn new(api_key: impl AsRef<str>, secret: impl AsRef<str>) -> Self {
+        Self::from_sec(api_key.as_ref().into(), secret.as_ref().into())
     }
 
     pub fn from_sec(api_key: String, secret: SecStr) -> Self {

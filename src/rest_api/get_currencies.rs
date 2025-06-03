@@ -2,34 +2,24 @@ use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, timestamp_now},
-    models::AccountResponse,
+    models::CurrencyDtoResponse,
     switch_url,
 };
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub struct AccountInfoRequest {
-    pub show_zero_balance: bool,
+pub struct CurrenciesRequest {
     pub recv_window: u64,
 }
-impl Default for AccountInfoRequest {
+impl Default for CurrenciesRequest {
     fn default() -> Self {
-        Self {
-            show_zero_balance: false,
-            recv_window: 5000,
-        }
+        Self { recv_window: 5000 }
     }
 }
-impl AccountInfoRequest {
+impl CurrenciesRequest {
     pub fn new() -> Self {
         Self::default()
     }
-
-    pub fn with_show_zero(mut self, zero_balance: bool) -> Self {
-        self.show_zero_balance = zero_balance;
-        self
-    }
-
     pub fn with_recv_window(mut self, recv_window: u64) -> Self {
         self.recv_window = recv_window;
         self
@@ -37,21 +27,19 @@ impl AccountInfoRequest {
 }
 
 impl DzengiRestClient {
-    pub async fn account_info(
+    pub async fn currencies(
         &self,
-        request: AccountInfoRequest,
-    ) -> DzengiRestClientResult<AccountResponse> {
+        request: CurrenciesRequest,
+    ) -> DzengiRestClientResult<Vec<CurrencyDtoResponse>> {
         let settings = self.settings()?;
 
-        let url = switch_url!("/api/v1/account", self.demo);
+        let url = switch_url!("/api/v1/currencies", self.demo);
         let timestamp = timestamp_now(self.correction_time)?.to_string();
-        let show_zero_balance = request.show_zero_balance.to_string();
         let recv_window = request.recv_window.to_string();
 
         let mut params = [
             (DefaultKeys::timestamp(), timestamp),
             (DefaultKeys::recv_window(), recv_window),
-            ("showZeroBalance", show_zero_balance),
         ];
 
         let signature = settings.generate_signature(params.as_mut_slice())?;
@@ -72,7 +60,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{AccountInfoRequest, DzengiRestClient},
+        rest_api::{CurrenciesRequest, DzengiRestClient},
     };
 
     #[tokio::test]
@@ -86,7 +74,7 @@ mod test {
 
         rest.with_correction_time_req().await.unwrap();
 
-        let info = rest.account_info(AccountInfoRequest::new()).await.unwrap();
-        println!("Info: {:?}", info);
+        let currencies = rest.currencies(CurrenciesRequest::new()).await.unwrap();
+        println!("Currencies: {:?}", &currencies[0..10]);
     }
 }

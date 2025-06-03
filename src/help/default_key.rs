@@ -9,6 +9,10 @@ impl DefaultKeys {
         "timestamp"
     }
 
+    pub fn recv_window() -> &'static str {
+        "recvWindow"
+    }
+
     pub fn api_key() -> &'static str {
         "X-MBX-APIKEY"
     }
