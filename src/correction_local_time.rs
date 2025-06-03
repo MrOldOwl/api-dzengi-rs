@@ -32,13 +32,12 @@ impl CorrectionLocalTime {
         Self::default()
     }
 
-    pub fn with_correction(mut self, correction: CorrectionTime) -> Self {
+    pub fn with_correction(&mut self, correction: CorrectionTime) {
         self.instant = match correction {
             CorrectionTime::None => None,
             _ => Some(Instant::now()),
         };
         self.correction = correction;
-        self
     }
 
     pub fn with_max_life_time(&mut self, life_time: Duration) -> Result<(), CorrectionTimeError> {
