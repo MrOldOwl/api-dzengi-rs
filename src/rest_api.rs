@@ -15,7 +15,8 @@ auto_import_models! {
     get_deposits,
     get_depth,
     get_exchange_info,
-    get_fetch_order
+    get_fetch_order,
+    get_funding_limits
 }
 
 #[derive(Debug, Default, Clone)]

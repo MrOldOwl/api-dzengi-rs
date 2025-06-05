@@ -2,19 +2,19 @@ use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys},
-    models::CurrencyDtoResponse,
+    models::FundingLimitsDtoResponse,
     response_models::RecvWindowRequest,
     switch_url,
 };
 
 impl DzengiRestClient {
-    pub async fn currencies(
+    pub async fn funding_limits(
         &self,
         request: RecvWindowRequest,
-    ) -> DzengiRestClientResult<Vec<CurrencyDtoResponse>> {
+    ) -> DzengiRestClientResult<Vec<FundingLimitsDtoResponse>> {
         let settings = self.settings()?;
 
-        let url = switch_url!("/api/v1/currencies", self.demo);
+        let url = switch_url!("/api/v1/fundingLimits", self.demo);
         let timestamp = self.correction_time.timestamp_now()?.to_string();
         let recv_window = request.recv_window.to_string();
 
@@ -54,7 +54,7 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        let resp = rest.currencies(RecvWindowRequest::new()).await.unwrap();
-        println!("Currencies: {:?}", &resp[0..10]);
+        let resp = rest.funding_limits(RecvWindowRequest::new()).await.unwrap();
+        println!("{:?}", &resp[0..10]);
     }
 }

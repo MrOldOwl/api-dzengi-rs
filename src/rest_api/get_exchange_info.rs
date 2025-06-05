@@ -3,34 +3,14 @@ use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys},
     models::ExchangeInfoResponse,
+    response_models::RecvWindowRequest,
     switch_url,
 };
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ExchangeInfoRequest {
-    pub recv_window: u64,
-}
-impl Default for ExchangeInfoRequest {
-    fn default() -> Self {
-        Self { recv_window: 5000 }
-    }
-}
-impl ExchangeInfoRequest {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn with_recv_window(mut self, recv_window: u64) -> Self {
-        self.recv_window = recv_window;
-        self
-    }
-}
 
 impl DzengiRestClient {
     pub async fn exchange_info(
         &self,
-        request: ExchangeInfoRequest,
+        request: RecvWindowRequest,
     ) -> DzengiRestClientResult<ExchangeInfoResponse> {
         let settings = self.settings()?;
 
@@ -60,8 +40,7 @@ mod test {
     use env_file_reader::read_file;
 
     use crate::{
-        crypto::UserSettings,
-        rest_api::{DzengiRestClient, ExchangeInfoRequest},
+        crypto::UserSettings, response_models::RecvWindowRequest, rest_api::DzengiRestClient,
     };
 
     #[tokio::test]
@@ -75,10 +54,7 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        let resp = rest
-            .exchange_info(ExchangeInfoRequest::new())
-            .await
-            .unwrap();
+        let resp = rest.exchange_info(RecvWindowRequest::new()).await.unwrap();
 
         println!("Info: {:?}", resp);
     }
