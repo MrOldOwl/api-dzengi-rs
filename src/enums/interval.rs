@@ -17,3 +17,20 @@ pub enum Interval {
     #[serde(rename = "1w")]
     OneWeek,
 }
+
+impl ToString for Interval {
+    fn to_string(&self) -> String {
+        use Interval::*;
+        match self {
+            OneMinute => "1m",
+            FiveMinutes => "5m",
+            FifteenMinutes => "15m",
+            ThirtyMinutes => "30m",
+            OneHour => "1h",
+            FourHours => "4h",
+            OneDay => "1d",
+            OneWeek => "1w",
+        }
+        .into()
+    }
+}

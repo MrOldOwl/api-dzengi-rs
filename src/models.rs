@@ -7,6 +7,7 @@ auto_import_models! {
     agg_trades_request,
     agg_trades_response,
     agg_trades,
+    klines_response,
     all_my_trades_request,
     all_my_trades_response,
     blockchain_address_get_response,
