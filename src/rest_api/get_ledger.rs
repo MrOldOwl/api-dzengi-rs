@@ -1,0 +1,97 @@
+use super::DzengiRestClient;
+use crate::{
+    errors::DzengiRestClientResult,
+    help::{AutoToJson, DefaultKeys, Query},
+    models::TransactionDtoResponse,
+    switch_url,
+};
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct LedgerRequest {
+    pub recv_window: Option<u64>,
+    pub limit: Option<usize>,
+    pub start_time: Option<u128>,
+    pub end_time: Option<u128>,
+}
+impl LedgerRequest {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn with_recv_window(mut self, recv_window: Option<u64>) -> Self {
+        self.recv_window = recv_window;
+        self
+    }
+
+    pub fn with_limit(mut self, limit: Option<usize>) -> Self {
+        self.limit = limit;
+        self
+    }
+
+    pub fn with_start_time(mut self, start_time: Option<u128>) -> Self {
+        self.start_time = start_time;
+        self
+    }
+
+    pub fn with_end_time(mut self, end_time: Option<u128>) -> Self {
+        self.end_time = end_time;
+        self
+    }
+}
+
+impl DzengiRestClient {
+    pub async fn ledger(
+        &self,
+        request: LedgerRequest,
+    ) -> DzengiRestClientResult<Vec<serde_json::Value>> {
+        let settings = self.settings()?;
+
+        let url = switch_url!("/api/v1/ledger", self.demo);
+
+        let mut query = Query::<5>::new();
+        query.add(
+            DefaultKeys::timestamp(),
+            self.correction_time.timestamp_now()?,
+        );
+        query.add_option(DefaultKeys::recv_window(), request.recv_window);
+        query.add_option("limit", request.limit);
+        query.add_option("startTime", request.start_time);
+        query.add_option("endTime", request.end_time);
+        let signature = query.gen_signature(&settings)?;
+
+        self.client
+            .get(url)
+            .header(DefaultKeys::api_key(), settings.api_key.as_str())
+            .query(query.as_slice())
+            .query(&[DefaultKeys::signature(), signature.as_str()])
+            .send_and_json()
+            .await
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use env_file_reader::read_file;
+
+    use crate::{
+        crypto::UserSettings,
+        rest_api::{DzengiRestClient, LedgerRequest},
+    };
+
+    #[tokio::test]
+    async fn test() {
+        let ent_file = read_file(".env").unwrap();
+        let api_key = ent_file["API_KEY"].clone();
+        let secret = ent_file["SECRET"].clone();
+
+        let mut rest =
+            DzengiRestClient::new().with_user_settings(Some(UserSettings::new(api_key, secret)));
+
+        rest.calc_correction_with_server().await.unwrap();
+
+        let resp = rest.ledger(LedgerRequest::new()).await.unwrap();
+
+        println!("{:?}", resp)
+    }
+}
