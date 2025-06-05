@@ -14,7 +14,8 @@ auto_import_models! {
     get_deposit_address,
     get_deposits,
     get_depth,
-    exchange_info
+    get_exchange_info,
+    get_fetch_order
 }
 
 #[derive(Debug, Default, Clone)]

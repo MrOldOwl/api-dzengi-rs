@@ -77,5 +77,6 @@ auto_import_models! {
     transaction_dto_response,
     transactions_request,
     transactions_response,
-    update_trading_order_request
+    update_trading_order_request,
+    fetch_order_response
 }
