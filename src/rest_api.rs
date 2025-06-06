@@ -20,6 +20,7 @@ auto_import_models! {
     get_klines,
     get_ledger,
     get_my_trades,
+    get_open_orders,
     get_leverage_settings
 }
 
