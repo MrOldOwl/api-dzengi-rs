@@ -19,6 +19,7 @@ auto_import_models! {
     get_funding_limits,
     get_klines,
     get_ledger,
+    get_my_trades,
     get_leverage_settings
 }
 
