@@ -18,7 +18,8 @@ auto_import_models! {
     get_fetch_order,
     get_funding_limits,
     get_klines,
-    get_ledger
+    get_ledger,
+    get_leverage_settings
 }
 
 #[derive(Debug, Default, Clone)]
