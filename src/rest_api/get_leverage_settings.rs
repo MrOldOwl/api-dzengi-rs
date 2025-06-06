@@ -77,6 +77,7 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
+        // TODO: test not work
         let resp = rest
             .leverage_settings(LeverageSettingsRequest::new("ETH/USD".into()))
             .await
