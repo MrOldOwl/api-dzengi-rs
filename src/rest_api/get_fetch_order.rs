@@ -1,7 +1,7 @@
 use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
-    help::{AutoToJson, DefaultKeys},
+    help::{AutoToJson, DefaultKeys, Query},
     models::FetchOrderResponse,
     switch_url,
 };
@@ -9,20 +9,20 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FetchOrderRequest {
-    pub recv_window: u64,
     pub symbol: String,
     pub order_id: String,
+    pub recv_window: Option<u64>,
 }
 impl FetchOrderRequest {
     pub fn new(symbol: String, order_id: String) -> Self {
         Self {
-            recv_window: 5000,
             symbol,
             order_id,
+            recv_window: None,
         }
     }
 
-    pub fn with_recv_window(mut self, recv_window: u64) -> Self {
+    pub fn with_recv_window(mut self, recv_window: Option<u64>) -> Self {
         self.recv_window = recv_window;
         self
     }
@@ -45,23 +45,20 @@ impl DzengiRestClient {
     ) -> DzengiRestClientResult<FetchOrderResponse> {
         let settings = self.settings()?;
 
-        let url = switch_url!("/api/v1/fetchOrder", self.demo);
-        let timestamp = self.correction_time.timestamp_now()?.to_string();
-        let recv_window = request.recv_window.to_string();
-
-        let mut params = [
-            (DefaultKeys::timestamp(), timestamp),
-            (DefaultKeys::recv_window(), recv_window),
-            (DefaultKeys::symbol(), request.symbol),
-            ("orderId", request.order_id),
-        ];
-
-        let signature = settings.generate_signature(params.as_mut_slice())?;
+        let mut query = Query::<4>::new();
+        query.add(
+            DefaultKeys::timestamp(),
+            self.correction_time.timestamp_now()?,
+        );
+        query.add_option(DefaultKeys::recv_window(), request.recv_window);
+        query.add(DefaultKeys::symbol(), request.symbol);
+        query.add("orderId", request.order_id);
+        let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(url)
+            .get(switch_url!("/api/v1/fetchOrder", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
-            .query(&params)
+            .query(&query.as_slice())
             .query(&[(DefaultKeys::signature(), signature.as_str())])
             .send_and_json()
             .await

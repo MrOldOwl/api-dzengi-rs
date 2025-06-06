@@ -47,8 +47,6 @@ impl DzengiRestClient {
     ) -> DzengiRestClientResult<Vec<serde_json::Value>> {
         let settings = self.settings()?;
 
-        let url = switch_url!("/api/v1/ledger", self.demo);
-
         let mut query = Query::<5>::new();
         query.add(
             DefaultKeys::timestamp(),
@@ -61,7 +59,7 @@ impl DzengiRestClient {
         let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(url)
+            .get(switch_url!("/api/v1/ledger", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&[DefaultKeys::signature(), signature.as_str()])

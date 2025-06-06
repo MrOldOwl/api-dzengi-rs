@@ -1,7 +1,7 @@
 use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
-    help::{AutoToJson, DefaultKeys},
+    help::{AutoToJson, DefaultKeys, Query},
     models::CurrencyDtoResponse,
     response_models::RecvWindowRequest,
     switch_url,
@@ -14,21 +14,18 @@ impl DzengiRestClient {
     ) -> DzengiRestClientResult<Vec<CurrencyDtoResponse>> {
         let settings = self.settings()?;
 
-        let url = switch_url!("/api/v1/currencies", self.demo);
-        let timestamp = self.correction_time.timestamp_now()?.to_string();
-        let recv_window = request.recv_window.to_string();
-
-        let mut params = [
-            (DefaultKeys::timestamp(), timestamp),
-            (DefaultKeys::recv_window(), recv_window),
-        ];
-
-        let signature = settings.generate_signature(params.as_mut_slice())?;
+        let mut query = Query::<2>::new();
+        query.add(
+            DefaultKeys::timestamp(),
+            self.correction_time.timestamp_now()?,
+        );
+        query.add_option(DefaultKeys::recv_window(), request.recv_window);
+        let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(url)
+            .get(switch_url!("/api/v1/currencies", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
-            .query(&params)
+            .query(&query.as_slice())
             .query(&[(DefaultKeys::signature(), signature.as_str())])
             .send_and_json()
             .await

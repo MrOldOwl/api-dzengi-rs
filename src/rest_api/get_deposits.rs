@@ -1,7 +1,7 @@
 use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
-    help::{AutoToJson, DefaultKeys},
+    help::{AutoToJson, DefaultKeys, Query},
     models::TransactionDtoResponse,
     switch_url,
 };
@@ -12,7 +12,7 @@ pub struct DepositsRequest {
     pub limit: Option<usize>,
     pub start_time: Option<u128>,
     pub end_time: Option<u128>,
-    pub recv_window: u64,
+    pub recv_window: Option<u64>,
 }
 impl DepositsRequest {
     pub fn new() -> Self {
@@ -34,7 +34,7 @@ impl DepositsRequest {
         self
     }
 
-    pub fn with_recv_window(mut self, recv_window: u64) -> Self {
+    pub fn with_recv_window(mut self, recv_window: Option<u64>) -> Self {
         self.recv_window = recv_window;
         self
     }
@@ -47,41 +47,21 @@ impl DzengiRestClient {
     ) -> DzengiRestClientResult<Vec<TransactionDtoResponse>> {
         let settings = self.settings()?;
 
-        let url = switch_url!("/api/v1/deposits", self.demo);
-
-        let timestamp = self.correction_time.timestamp_now()?.to_string();
-        let recv_window = request.recv_window.to_string();
-
-        let mut count = 2_usize;
-        let mut params = [
-            (DefaultKeys::timestamp(), timestamp),
-            (DefaultKeys::recv_window(), recv_window),
-            DefaultKeys::empty_item(),
-            DefaultKeys::empty_item(),
-            DefaultKeys::empty_item(),
-        ];
-
-        if let Some(limit) = request.limit {
-            params[count] = ("limit", limit.to_string());
-            count += 1;
-        }
-
-        if let Some(start_time) = request.start_time {
-            params[count] = ("startTime", start_time.to_string());
-            count += 1;
-        }
-
-        if let Some(end_time) = request.end_time {
-            params[count] = ("endTime", end_time.to_string());
-            count += 1;
-        }
-
-        let signature = settings.generate_signature(&mut params.as_mut_slice()[..count])?;
+        let mut query = Query::<5>::new();
+        query.add(
+            DefaultKeys::timestamp(),
+            self.correction_time.timestamp_now()?,
+        );
+        query.add_option(DefaultKeys::recv_window(), request.recv_window);
+        query.add_option("limit", request.limit);
+        query.add_option("startTime", request.start_time);
+        query.add_option("endTime", request.end_time);
+        let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(url)
+            .get(switch_url!("/api/v1/deposits", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
-            .query(&params[..count])
+            .query(query.as_slice())
             .query(&[(DefaultKeys::signature(), signature.as_str())])
             .send_and_json()
             .await

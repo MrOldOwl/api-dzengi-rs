@@ -3,8 +3,10 @@ use crate::{errors::DzengiRestClientResult, help::AutoToJson, models::ServerTime
 
 impl DzengiRestClient {
     pub async fn server_time(&self) -> DzengiRestClientResult<ServerTime> {
-        let url = switch_url!("/api/v2/time", self.demo);
-        self.client.get(url).send_and_json().await
+        self.client
+            .get(switch_url!("/api/v2/time", self.demo))
+            .send_and_json()
+            .await
     }
 }
 

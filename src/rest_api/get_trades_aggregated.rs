@@ -1,7 +1,7 @@
 use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
-    help::{AutoToJson, DefaultKeys},
+    help::{AutoToJson, DefaultKeys, Query},
     models::AggTrades,
     switch_url,
 };
@@ -45,26 +45,17 @@ impl DzengiRestClient {
         &self,
         request: TradesAggregatedRequest,
     ) -> DzengiRestClientResult<Vec<AggTrades>> {
-        let url = switch_url!("/api/v1/aggTrades", self.demo);
+        let mut query = Query::<2>::new();
+        query.add(DefaultKeys::symbol(), request.symbol);
+        query.add_option("limit", request.limit);
+        query.add_option("startTime", request.start_time);
+        query.add_option("endTime", request.end_time);
 
-        let mut req = self
-            .client
-            .get(url)
-            .query(&[(DefaultKeys::symbol(), request.symbol)]);
-
-        if let Some(limit) = request.limit {
-            req = req.query(&[("limit", limit.to_string())])
-        }
-
-        if let Some(start_time) = request.start_time {
-            req = req.query(&[("startTime", start_time.to_string())])
-        }
-
-        if let Some(end_time) = request.end_time {
-            req = req.query(&[("endTime", end_time.to_string())])
-        }
-
-        req.send_and_json().await
+        self.client
+            .get(switch_url!("/api/v1/aggTrades", self.demo))
+            .query(query.as_slice())
+            .send_and_json()
+            .await
     }
 }
 

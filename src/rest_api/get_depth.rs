@@ -1,7 +1,7 @@
 use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
-    help::{AutoToJson, DefaultKeys},
+    help::{AutoToJson, DefaultKeys, Query},
     models::DepthResponse,
     switch_url,
 };
@@ -28,18 +28,15 @@ impl DepthRequest {
 
 impl DzengiRestClient {
     pub async fn depth(&self, request: DepthRequest) -> DzengiRestClientResult<DepthResponse> {
-        let url = switch_url!("/api/v1/depth", self.demo);
+        let mut query = Query::<2>::new();
+        query.add(DefaultKeys::symbol(), request.symbol);
+        query.add_option("limit", request.limit);
 
-        let mut req = self
-            .client
-            .get(url)
-            .query(&[(DefaultKeys::symbol(), request.symbol)]);
-
-        if let Some(limit) = request.limit {
-            req = req.query(&[("limit", limit.to_string())])
-        }
-
-        req.send_and_json().await
+        self.client
+            .get(switch_url!("/api/v1/depth", self.demo))
+            .query(query.as_slice())
+            .send_and_json()
+            .await
     }
 }
 

@@ -2,7 +2,7 @@ use super::DzengiRestClient;
 use crate::{
     enums::Interval,
     errors::DzengiRestClientResult,
-    help::{AutoToJson, DefaultKeys},
+    help::{AutoToJson, DefaultKeys, Query},
     models::KlinesResponse,
     switch_url,
 };
@@ -72,34 +72,20 @@ impl DzengiRestClient {
         &self,
         request: KlinesRequest,
     ) -> DzengiRestClientResult<Vec<KlinesResponse>> {
-        let url = switch_url!("/api/v1/klines", self.demo);
+        let mut query = Query::<7>::new();
+        query.add(DefaultKeys::symbol(), request.symbol);
+        query.add("interval", request.interval);
+        query.add_option("priceType", request.price_type);
+        query.add_option("type", request.kline_type);
+        query.add_option("limit", request.limit);
+        query.add_option("startTime", request.start_time);
+        query.add_option("endTime", request.end_time);
 
-        let mut req = self.client.get(url).query(&[
-            (DefaultKeys::symbol(), request.symbol),
-            ("interval", request.interval.to_string()),
-        ]);
-
-        if let Some(price_type) = request.price_type {
-            req = req.query(&[("priceType", price_type.to_string())])
-        }
-
-        if let Some(kline_type) = request.kline_type {
-            req = req.query(&[("type", kline_type.to_string())])
-        }
-
-        if let Some(limit) = request.limit {
-            req = req.query(&[("limit", limit.to_string())])
-        }
-
-        if let Some(start_time) = request.start_time {
-            req = req.query(&[("startTime", start_time.to_string())])
-        }
-
-        if let Some(end_time) = request.end_time {
-            req = req.query(&[("endTime", end_time.to_string())])
-        }
-
-        req.send_and_json().await
+        self.client
+            .get(switch_url!("/api/v1/klines", self.demo))
+            .query(query.as_slice())
+            .send_and_json()
+            .await
     }
 }
 
