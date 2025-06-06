@@ -24,12 +24,11 @@ impl UserSettings {
 
     pub fn generate_signature(
         &self,
-        params: &mut [(impl AsRef<str>, impl AsRef<str>)],
+        params: &[(impl AsRef<str>, impl AsRef<str>)],
     ) -> Result<Zeroizing<String>, CryptoError> {
         if params.len() == 0 {
             return Err(CryptoError::ParamsEmpty);
         }
-        params.sort_by(|lhs, rhs| lhs.0.as_ref().cmp(rhs.0.as_ref()));
 
         let mut pairs = params
             .iter()

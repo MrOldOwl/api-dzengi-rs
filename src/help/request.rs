@@ -55,10 +55,7 @@ impl<const N: usize> Query<N> {
         &self.slice[..self.counter]
     }
 
-    pub fn gen_signature(
-        &mut self,
-        settings: &UserSettings,
-    ) -> Result<Zeroizing<String>, CryptoError> {
-        settings.generate_signature(&mut self.slice[..self.counter])
+    pub fn gen_signature(&self, settings: &UserSettings) -> Result<Zeroizing<String>, CryptoError> {
+        settings.generate_signature(&self.slice[..self.counter])
     }
 }
