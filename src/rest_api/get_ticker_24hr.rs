@@ -2,22 +2,12 @@ use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
-    models::Ticker24hr,
+    models::{SymbolRequest, Ticker24hr},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct Ticker24hrRequest {
-    pub symbol: String,
-}
 
 impl DzengiRestClient {
-    pub async fn ticker_24hr(
-        &self,
-        request: Ticker24hrRequest,
-    ) -> DzengiRestClientResult<Ticker24hr> {
+    pub async fn ticker_24hr(&self, request: SymbolRequest) -> DzengiRestClientResult<Ticker24hr> {
         let mut query = Query::<1>::new();
         request.fill_query(&mut query);
 
@@ -31,7 +21,7 @@ impl DzengiRestClient {
 
 #[cfg(test)]
 mod test {
-    use crate::rest_api::{DzengiRestClient, Ticker24hrRequest};
+    use crate::{models::SymbolRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {
@@ -40,7 +30,7 @@ mod test {
         rest.calc_correction_with_server().await.unwrap();
 
         let resp = rest
-            .ticker_24hr(Ticker24hrRequest::new("BTC/USD".into()))
+            .ticker_24hr(SymbolRequest::new("BTC/USD".into()))
             .await
             .unwrap();
 
