@@ -33,7 +33,7 @@ impl DzengiRestClient {
             .get(switch_url!("/api/v1/leverageSettings", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
-            .query(&[DefaultKeys::signature(), signature.as_str()])
+            .query(&[(DefaultKeys::signature(), signature.as_str())])
             .send_and_json()
             .await
     }
@@ -59,9 +59,8 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        // TODO: test not work
         let resp = rest
-            .leverage_settings(LeverageSettingsRequest::new("ETH/USD".into()))
+            .leverage_settings(LeverageSettingsRequest::new("ETH/USD_LEVERAGE".into()))
             .await
             .unwrap();
 
