@@ -53,6 +53,6 @@ mod test {
 
         let resp = rest.exchange_info(RecvWindowRequest::new()).await.unwrap();
 
-        println!("Info: {:?}", resp);
+        println!("{:?}", resp);
     }
 }

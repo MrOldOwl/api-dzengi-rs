@@ -24,7 +24,8 @@ auto_import_models! {
     get_leverage_settings,
     post_order,
     put_order,
-    delete_order
+    delete_order,
+    get_ticker_24hr
 }
 
 #[derive(Debug, Default, Clone)]

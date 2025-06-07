@@ -60,6 +60,6 @@ mod test {
         rest.calc_correction_with_server().await.unwrap();
 
         let resp = rest.account_info(AccountInfoRequest::new()).await.unwrap();
-        println!("Info: {:?}", resp);
+        println!("{:?}", resp);
     }
 }

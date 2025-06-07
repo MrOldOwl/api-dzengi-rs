@@ -52,6 +52,6 @@ mod test {
         rest.calc_correction_with_server().await.unwrap();
 
         let resp = rest.funding_limits(RecvWindowRequest::new()).await.unwrap();
-        println!("{:?}", &resp[0..10]);
+        println!("{:?}", &resp[..10]);
     }
 }

@@ -64,6 +64,6 @@ mod test {
             .await
             .unwrap();
 
-        println!("Currencies: {:?}", resp);
+        println!("{:?}", resp);
     }
 }

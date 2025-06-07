@@ -67,6 +67,6 @@ mod test {
             .await
             .unwrap();
 
-        println!("Info: {:?}", resp);
+        println!("{:?}", resp);
     }
 }
