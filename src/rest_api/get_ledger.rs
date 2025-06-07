@@ -20,7 +20,7 @@ impl DzengiRestClient {
     pub async fn ledger(
         &self,
         request: LedgerRequest,
-    ) -> DzengiRestClientResult<Vec<serde_json::Value>> {
+    ) -> DzengiRestClientResult<Vec<TransactionDtoResponse>> {
         let settings = self.settings()?;
 
         let mut query = Query::<5>::new();
