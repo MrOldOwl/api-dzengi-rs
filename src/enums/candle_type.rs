@@ -16,6 +16,7 @@
     serde::Deserialize,
 )]
 #[serde(rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
 pub enum CandleType {
     Classic,
     HeikinAshi,

@@ -16,6 +16,7 @@
     serde::Deserialize,
 )]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum SymbolStatus {
     AuctionMatch,
     Break,
