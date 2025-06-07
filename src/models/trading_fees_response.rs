@@ -5,7 +5,7 @@ use super::OvernightRate;
 pub struct TradingFeesResponse {
     pub fee: f64,
     pub name: String,
-    pub overnight_fee_timestamp: i64,
-    pub overnight_rates: Vec<OvernightRate>,
     pub symbol: String,
+    pub overnight_fee_timestamp: Option<i64>,
+    pub overnight_rates: Option<Vec<OvernightRate>>,
 }

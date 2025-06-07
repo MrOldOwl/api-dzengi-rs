@@ -25,7 +25,8 @@ auto_import_models! {
     post_order,
     put_order,
     delete_order,
-    get_ticker_24hr
+    get_ticker_24hr,
+    get_trading_fees
 }
 
 #[derive(Debug, Default, Clone)]
