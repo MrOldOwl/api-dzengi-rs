@@ -60,7 +60,7 @@ mod test {
         rest.calc_correction_with_server().await.unwrap();
 
         let resp = rest
-            .leverage_settings(LeverageSettingsRequest::new("ETH/USD_LEVERAGE".into()))
+            .leverage_settings(LeverageSettingsRequest::new("BTC/USD_LEVERAGE".into()))
             .await
             .unwrap();
 

@@ -10,7 +10,7 @@ pub struct TransactionDtoResponse {
     #[serde(rename = "type")]
     pub transaction_type: String,
     pub timestamp: u128,
-    pub commission: f64,
+    pub commission: Option<f64>,
     pub status: RequestState,
     pub blockchain_transaction_hash: Option<String>,
     pub payment_method: Option<String>,

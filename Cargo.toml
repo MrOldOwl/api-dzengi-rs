@@ -2,6 +2,8 @@
 name = "api-dzengi-rs"
 version = "0.1.0"
 edition = "2024"
+authors = ["MrOldOwl"]
+repository = "https://github.com/MrOldOwl/api-dzengi-rs"
 
 [features]
 

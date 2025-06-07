@@ -14,6 +14,7 @@ pub struct CreateOrderRequest {
     pub symbol: String,
     pub side: Side,
     pub quantity: f64,
+    #[serde(rename = "type")]
     pub order_type: OrderType,
     pub account_id: Option<String>,
     pub expire_timestamp: Option<i64>,
@@ -42,10 +43,11 @@ impl DzengiRestClient {
             &self.correction_time.timestamp_now()?,
         );
         request.fill_query(&mut query);
+
         let signature = query.gen_signature(settings)?;
 
         self.client
-            .post(switch_url!("/api/v1/closeTradingPosition", self.demo))
+            .post(switch_url!("/api/v1/order", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&[(DefaultKeys::signature(), signature.as_str())])
@@ -76,10 +78,9 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        //TODO: CREATE POSITION IN DEMO
         let resp = rest
             .create_order(CreateOrderRequest::new(
-                "".into(),
+                "XRP/USD".into(),
                 Side::Buy,
                 1.0,
                 OrderType::Market,
