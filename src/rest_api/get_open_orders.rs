@@ -5,27 +5,13 @@ use crate::{
     models::OpenOrdersResponse,
     switch_url,
 };
+use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
 pub struct OpenOrdersRequest {
     pub symbol: Option<String>,
     pub recv_window: Option<u64>,
-}
-impl OpenOrdersRequest {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn with_symbol(mut self, symbol: Option<String>) -> Self {
-        self.symbol = symbol;
-        self
-    }
-
-    pub fn with_recv_window(mut self, recv_window: Option<u64>) -> Self {
-        self.recv_window = recv_window;
-        self
-    }
 }
 
 impl DzengiRestClient {
@@ -40,8 +26,7 @@ impl DzengiRestClient {
             DefaultKeys::timestamp(),
             self.correction_time.timestamp_now()?,
         );
-        query.add_option(DefaultKeys::symbol(), request.symbol);
-        query.add_option(DefaultKeys::recv_window(), request.recv_window);
+        request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client

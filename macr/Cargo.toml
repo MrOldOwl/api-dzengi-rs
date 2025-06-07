@@ -1,0 +1,12 @@
+[package]
+name = "macr"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+heck = "0.5.0"
+syn = { version = "^2.0", features = ["full"] }
+quote = "^1.0"

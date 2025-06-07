@@ -5,48 +5,16 @@ use crate::{
     models::MyTradesResponse,
     switch_url,
 };
+use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
 pub struct MyTradesRequest {
     pub symbol: String,
     pub recv_window: Option<u64>,
     pub limit: Option<usize>,
     pub start_time: Option<u128>,
     pub end_time: Option<u128>,
-}
-impl MyTradesRequest {
-    pub fn new(symbol: String) -> Self {
-        Self {
-            symbol,
-            ..Default::default()
-        }
-    }
-
-    pub fn with_symbol(mut self, symbol: String) -> Self {
-        self.symbol = symbol;
-        self
-    }
-
-    pub fn with_recv_window(mut self, recv_window: Option<u64>) -> Self {
-        self.recv_window = recv_window;
-        self
-    }
-
-    pub fn with_limit(mut self, limit: Option<usize>) -> Self {
-        self.limit = limit;
-        self
-    }
-
-    pub fn with_start_time(mut self, start_time: Option<u128>) -> Self {
-        self.start_time = start_time;
-        self
-    }
-
-    pub fn with_end_time(mut self, end_time: Option<u128>) -> Self {
-        self.end_time = end_time;
-        self
-    }
 }
 
 impl DzengiRestClient {
@@ -61,11 +29,7 @@ impl DzengiRestClient {
             DefaultKeys::timestamp(),
             self.correction_time.timestamp_now()?,
         );
-        query.add(DefaultKeys::symbol(), request.symbol);
-        query.add_option(DefaultKeys::recv_window(), request.recv_window);
-        query.add_option("limit", request.limit);
-        query.add_option("startTime", request.start_time);
-        query.add_option("endTime", request.end_time);
+        request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client

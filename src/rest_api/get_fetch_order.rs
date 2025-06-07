@@ -5,37 +5,14 @@ use crate::{
     models::FetchOrderResponse,
     switch_url,
 };
+use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
 pub struct FetchOrderRequest {
     pub symbol: String,
     pub order_id: String,
     pub recv_window: Option<u64>,
-}
-impl FetchOrderRequest {
-    pub fn new(symbol: String, order_id: String) -> Self {
-        Self {
-            symbol,
-            order_id,
-            recv_window: None,
-        }
-    }
-
-    pub fn with_recv_window(mut self, recv_window: Option<u64>) -> Self {
-        self.recv_window = recv_window;
-        self
-    }
-
-    pub fn with_symbol(mut self, symbol: String) -> Self {
-        self.symbol = symbol;
-        self
-    }
-
-    pub fn with_order_id(mut self, order_id: String) -> Self {
-        self.order_id = order_id;
-        self
-    }
 }
 
 impl DzengiRestClient {
@@ -50,9 +27,7 @@ impl DzengiRestClient {
             DefaultKeys::timestamp(),
             self.correction_time.timestamp_now()?,
         );
-        query.add_option(DefaultKeys::recv_window(), request.recv_window);
-        query.add(DefaultKeys::symbol(), request.symbol);
-        query.add("orderId", request.order_id);
+        request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client

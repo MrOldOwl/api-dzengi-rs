@@ -1,43 +1,19 @@
 use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
-    help::{AutoToJson, DefaultKeys, Query},
+    help::{AutoToJson, Query},
     models::AggTrades,
     switch_url,
 };
+use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
 pub struct TradesAggregatedRequest {
     pub symbol: String,
     pub limit: Option<usize>,
     pub start_time: Option<u128>,
     pub end_time: Option<u128>,
-}
-impl TradesAggregatedRequest {
-    pub fn new(symbol: String) -> Self {
-        Self {
-            symbol,
-            end_time: None,
-            start_time: None,
-            limit: None,
-        }
-    }
-
-    pub fn with_limit(mut self, limit: Option<usize>) -> Self {
-        self.limit = limit;
-        self
-    }
-
-    pub fn with_start_time(mut self, start_time: Option<u128>) -> Self {
-        self.start_time = start_time;
-        self
-    }
-
-    pub fn with_end_time(mut self, end_time: Option<u128>) -> Self {
-        self.end_time = end_time;
-        self
-    }
 }
 
 impl DzengiRestClient {
@@ -45,11 +21,8 @@ impl DzengiRestClient {
         &self,
         request: TradesAggregatedRequest,
     ) -> DzengiRestClientResult<Vec<AggTrades>> {
-        let mut query = Query::<2>::new();
-        query.add(DefaultKeys::symbol(), request.symbol);
-        query.add_option("limit", request.limit);
-        query.add_option("startTime", request.start_time);
-        query.add_option("endTime", request.end_time);
+        let mut query = Query::<4>::new();
+        request.fill_query(&mut query);
 
         self.client
             .get(switch_url!("/api/v1/aggTrades", self.demo))

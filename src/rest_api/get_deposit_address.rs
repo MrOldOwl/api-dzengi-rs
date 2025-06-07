@@ -5,24 +5,13 @@ use crate::{
     models::BlockchainAddressResponse,
     switch_url,
 };
+use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
 pub struct DepositAddressRequest {
     pub coin: String,
     pub recv_window: Option<u64>,
-}
-impl DepositAddressRequest {
-    pub fn new(coin: String) -> Self {
-        Self {
-            coin,
-            recv_window: None,
-        }
-    }
-    pub fn with_recv_window(mut self, recv_window: Option<u64>) -> Self {
-        self.recv_window = recv_window;
-        self
-    }
 }
 
 impl DzengiRestClient {
@@ -37,8 +26,7 @@ impl DzengiRestClient {
             DefaultKeys::timestamp(),
             self.correction_time.timestamp_now()?,
         );
-        query.add_option(DefaultKeys::recv_window(), request.recv_window);
-        query.add("coin", request.coin);
+        request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client

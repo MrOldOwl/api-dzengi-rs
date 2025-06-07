@@ -1,36 +1,23 @@
 use super::DzengiRestClient;
 use crate::{
     errors::DzengiRestClientResult,
-    help::{AutoToJson, DefaultKeys, Query},
+    help::{AutoToJson, Query},
     models::DepthResponse,
     switch_url,
 };
+use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
 pub struct DepthRequest {
     pub symbol: String,
     pub limit: Option<usize>,
-}
-impl DepthRequest {
-    pub fn new(symbol: String) -> Self {
-        Self {
-            symbol,
-            limit: None,
-        }
-    }
-
-    pub fn with_limit(mut self, limit: Option<usize>) -> Self {
-        self.limit = limit;
-        self
-    }
 }
 
 impl DzengiRestClient {
     pub async fn depth(&self, request: DepthRequest) -> DzengiRestClientResult<DepthResponse> {
         let mut query = Query::<2>::new();
-        query.add(DefaultKeys::symbol(), request.symbol);
-        query.add_option("limit", request.limit);
+        request.fill_query(&mut query);
 
         self.client
             .get(switch_url!("/api/v1/depth", self.demo))

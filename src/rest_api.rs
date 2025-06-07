@@ -21,7 +21,8 @@ auto_import_models! {
     get_ledger,
     get_my_trades,
     get_open_orders,
-    get_leverage_settings
+    get_leverage_settings,
+    post_order
 }
 
 #[derive(Debug, Default, Clone)]

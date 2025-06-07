@@ -1,5 +1,6 @@
 use super::DzengiRestClient;
 use crate::{
+    enums::{OrderType, Side},
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
     models::TradingPositionCloseAllResponse,
@@ -8,23 +9,37 @@ use crate::{
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct CloseTradingPositionRequest {
-    pub position_id: String,
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, RequestMethods)]
+pub struct CreateOrderRequest {
+    pub symbol: String,
+    pub side: Side,
+    pub quantity: f64,
+    pub order_type: OrderType,
+    pub account_id: Option<String>,
+    pub expire_timestamp: Option<i64>,
+    pub guaranteed_stop_loss: Option<bool>,
+    pub leverage: Option<i32>,
+    pub price: Option<f64>,
+    pub profit_distance: Option<f64>,
     pub recv_window: Option<u64>,
+    pub new_order_resp_type: Option<String>,
+    pub stop_distance: Option<f64>,
+    pub stop_loss: Option<f64>,
+    pub take_profit: Option<f64>,
+    pub trailing_stop_loss: Option<bool>,
 }
 
 impl DzengiRestClient {
-    pub async fn close_trading_position(
+    pub async fn create_order(
         &self,
-        request: CloseTradingPositionRequest,
+        request: CreateOrderRequest,
     ) -> DzengiRestClientResult<TradingPositionCloseAllResponse> {
         let settings = self.settings()?;
 
-        let mut query = Query::<3>::new();
+        let mut query = Query::<17>::new();
         query.add(
             DefaultKeys::timestamp(),
-            self.correction_time.timestamp_now()?,
+            &self.correction_time.timestamp_now()?,
         );
         request.fill_query(&mut query);
         let signature = query.gen_signature(settings)?;
@@ -45,7 +60,8 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{CloseTradingPositionRequest, DzengiRestClient},
+        enums::{OrderType, Side},
+        rest_api::{CreateOrderRequest, DzengiRestClient},
     };
 
     #[tokio::test]
@@ -62,7 +78,12 @@ mod test {
 
         //TODO: CREATE POSITION IN DEMO
         let resp = rest
-            .close_trading_position(CloseTradingPositionRequest::new("".into()))
+            .create_order(CreateOrderRequest::new(
+                "".into(),
+                Side::Buy,
+                1.0,
+                OrderType::Market,
+            ))
             .await;
 
         match resp {

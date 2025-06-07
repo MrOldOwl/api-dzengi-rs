@@ -19,7 +19,7 @@ impl DzengiRestClient {
             DefaultKeys::timestamp(),
             self.correction_time.timestamp_now()?,
         );
-        query.add_option(DefaultKeys::recv_window(), request.recv_window);
+        request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client

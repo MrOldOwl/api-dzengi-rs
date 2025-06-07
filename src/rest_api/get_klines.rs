@@ -2,13 +2,14 @@ use super::DzengiRestClient;
 use crate::{
     enums::Interval,
     errors::DzengiRestClientResult,
-    help::{AutoToJson, DefaultKeys, Query},
+    help::{AutoToJson, Query},
     models::KlinesResponse,
     switch_url,
 };
+use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
 pub struct KlinesRequest {
     pub symbol: String,
     pub interval: Interval,
@@ -18,54 +19,6 @@ pub struct KlinesRequest {
     pub start_time: Option<u128>,
     pub end_time: Option<u128>,
 }
-impl KlinesRequest {
-    pub fn new(symbol: String, interval: Interval) -> Self {
-        Self {
-            symbol,
-            interval,
-            kline_type: None,
-            price_type: None,
-            end_time: None,
-            start_time: None,
-            limit: None,
-        }
-    }
-
-    pub fn with_symbol(mut self, symbol: String) -> Self {
-        self.symbol = symbol;
-        self
-    }
-
-    pub fn with_interval(mut self, interval: Interval) -> Self {
-        self.interval = interval;
-        self
-    }
-
-    pub fn with_kline_type(mut self, kline_type: Option<String>) -> Self {
-        self.kline_type = kline_type;
-        self
-    }
-
-    pub fn with_price_type(mut self, price_type: Option<String>) -> Self {
-        self.price_type = price_type;
-        self
-    }
-
-    pub fn with_limit(mut self, limit: Option<usize>) -> Self {
-        self.limit = limit;
-        self
-    }
-
-    pub fn with_start_time(mut self, start_time: Option<u128>) -> Self {
-        self.start_time = start_time;
-        self
-    }
-
-    pub fn with_end_time(mut self, end_time: Option<u128>) -> Self {
-        self.end_time = end_time;
-        self
-    }
-}
 
 impl DzengiRestClient {
     pub async fn klines(
@@ -73,13 +26,7 @@ impl DzengiRestClient {
         request: KlinesRequest,
     ) -> DzengiRestClientResult<Vec<KlinesResponse>> {
         let mut query = Query::<7>::new();
-        query.add(DefaultKeys::symbol(), request.symbol);
-        query.add("interval", request.interval);
-        query.add_option("priceType", request.price_type);
-        query.add_option("type", request.kline_type);
-        query.add_option("limit", request.limit);
-        query.add_option("startTime", request.start_time);
-        query.add_option("endTime", request.end_time);
+        request.fill_query(&mut query);
 
         self.client
             .get(switch_url!("/api/v1/klines", self.demo))

@@ -5,35 +5,13 @@ use crate::{
     models::AccountResponse,
     switch_url,
 };
+use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Copy, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
 pub struct AccountInfoRequest {
-    pub show_zero_balance: bool,
+    pub show_zero_balance: Option<bool>,
     pub recv_window: Option<u64>,
-}
-impl Default for AccountInfoRequest {
-    fn default() -> Self {
-        Self {
-            show_zero_balance: false,
-            recv_window: None,
-        }
-    }
-}
-impl AccountInfoRequest {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn with_show_zero(mut self, zero_balance: bool) -> Self {
-        self.show_zero_balance = zero_balance;
-        self
-    }
-
-    pub fn with_recv_window(mut self, recv_window: Option<u64>) -> Self {
-        self.recv_window = recv_window;
-        self
-    }
 }
 
 impl DzengiRestClient {
@@ -48,8 +26,7 @@ impl DzengiRestClient {
             DefaultKeys::timestamp(),
             self.correction_time.timestamp_now()?,
         );
-        query.add_option(DefaultKeys::recv_window(), request.recv_window);
-        query.add("showZeroBalance", request.show_zero_balance);
+        request.fill_query(&mut query);
         let signature = query.gen_signature(settings)?;
 
         self.client

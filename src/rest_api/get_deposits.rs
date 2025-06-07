@@ -5,39 +5,15 @@ use crate::{
     models::TransactionDtoResponse,
     switch_url,
 };
+use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
 pub struct DepositsRequest {
     pub limit: Option<usize>,
     pub start_time: Option<u128>,
     pub end_time: Option<u128>,
     pub recv_window: Option<u64>,
-}
-impl DepositsRequest {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn with_limit(mut self, limit: Option<usize>) -> Self {
-        self.limit = limit;
-        self
-    }
-
-    pub fn with_start_time(mut self, start_time: Option<u128>) -> Self {
-        self.start_time = start_time;
-        self
-    }
-
-    pub fn with_end_time(mut self, end_time: Option<u128>) -> Self {
-        self.end_time = end_time;
-        self
-    }
-
-    pub fn with_recv_window(mut self, recv_window: Option<u64>) -> Self {
-        self.recv_window = recv_window;
-        self
-    }
 }
 
 impl DzengiRestClient {
@@ -52,10 +28,7 @@ impl DzengiRestClient {
             DefaultKeys::timestamp(),
             self.correction_time.timestamp_now()?,
         );
-        query.add_option(DefaultKeys::recv_window(), request.recv_window);
-        query.add_option("limit", request.limit);
-        query.add_option("startTime", request.start_time);
-        query.add_option("endTime", request.end_time);
+        request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client
