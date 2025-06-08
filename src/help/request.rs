@@ -44,6 +44,11 @@ impl<const N: usize> Query<N> {
         self.counter += 1;
     }
 
+    pub fn add_item(&mut self, item: (&'static str, String)) {
+        self.slice[self.counter] = item;
+        self.counter += 1;
+    }
+
     pub fn add_option<T: ToString>(&mut self, key: &'static str, value: Option<T>) {
         if let Some(value) = value {
             self.slice[self.counter] = (key, value.to_string());

@@ -24,10 +24,7 @@ impl DzengiRestClient {
         let settings = self.settings()?;
 
         let mut query = Query::<5>::new();
-        query.add(
-            DefaultKeys::timestamp(),
-            self.correction_time.timestamp_now()?,
-        );
+        query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
@@ -35,7 +32,7 @@ impl DzengiRestClient {
             .get(switch_url!("/api/v1/deposits", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
-            .query(&[(DefaultKeys::signature(), signature.as_str())])
+            .query(&DefaultKeys::signature(&signature))
             .send_and_json()
             .await
     }

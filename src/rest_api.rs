@@ -27,14 +27,15 @@ auto_import_models! {
     delete_order,
     get_ticker_24hr,
     get_trading_fees,
-    get_trading_limits
+    get_trading_limits,
+    trading_positions
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct DzengiRestClient {
     demo: bool,
     settings: Option<UserSettings>,
-    correction_time: CorrectionLocalTime,
+    pub(crate) correction_time: CorrectionLocalTime,
     client: reqwest::Client,
 }
 
