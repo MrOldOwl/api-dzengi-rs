@@ -28,7 +28,8 @@ auto_import_models! {
     get_ticker_24hr,
     get_trading_fees,
     get_trading_limits,
-    trading_positions
+    trading_positions,
+    get_trading_positions_history
 }
 
 #[derive(Debug, Default, Clone)]
