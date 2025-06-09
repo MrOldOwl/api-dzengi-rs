@@ -47,7 +47,7 @@ mod test {
 
         let resp = rest
             .v1()
-            .open_orders(SymbolWithRecvRequest::new())
+            .open_orders(SymbolWithRecvRequest::new("symbol".into()))
             .await
             .unwrap();
 
