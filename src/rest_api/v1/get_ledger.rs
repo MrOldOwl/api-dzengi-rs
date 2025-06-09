@@ -1,4 +1,4 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
@@ -9,17 +9,17 @@ use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct TransactionsRequest {
+pub struct LedgerRequest {
     pub recv_window: Option<u64>,
     pub limit: Option<usize>,
     pub start_time: Option<u128>,
     pub end_time: Option<u128>,
 }
 
-impl DzengiRestClient {
-    pub async fn transactions(
+impl RequestVersion1<'_> {
+    pub async fn ledger(
         &self,
-        request: TransactionsRequest,
+        request: LedgerRequest,
     ) -> DzengiRestClientResult<Vec<TransactionDtoResponse>> {
         let settings = self.settings()?;
 
@@ -29,7 +29,7 @@ impl DzengiRestClient {
         let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/transactions", self.demo))
+            .get(switch_url!("/api/v1/ledger", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -44,7 +44,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{DzengiRestClient, TransactionsRequest},
+        rest_api::{DzengiRestClient, LedgerRequest},
     };
 
     #[tokio::test]
@@ -58,7 +58,7 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        let resp = rest.transactions(TransactionsRequest::new()).await.unwrap();
+        let resp = rest.v1().ledger(LedgerRequest::new()).await.unwrap();
 
         println!("{:?}", resp)
     }

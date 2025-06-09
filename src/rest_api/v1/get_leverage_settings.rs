@@ -1,35 +1,33 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TransactionDtoResponse,
+    models::LeverageSettingsResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct LedgerRequest {
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
+pub struct LeverageSettingsRequest {
+    pub symbol: String,
     pub recv_window: Option<u64>,
-    pub limit: Option<usize>,
-    pub start_time: Option<u128>,
-    pub end_time: Option<u128>,
 }
 
-impl DzengiRestClient {
-    pub async fn ledger(
+impl RequestVersion1<'_> {
+    pub async fn leverage_settings(
         &self,
-        request: LedgerRequest,
-    ) -> DzengiRestClientResult<Vec<TransactionDtoResponse>> {
+        request: LeverageSettingsRequest,
+    ) -> DzengiRestClientResult<LeverageSettingsResponse> {
         let settings = self.settings()?;
 
-        let mut query = Query::<5>::new();
+        let mut query = Query::<3>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/ledger", self.demo))
+            .get(switch_url!("/api/v1/leverageSettings", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -44,7 +42,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{DzengiRestClient, LedgerRequest},
+        rest_api::{DzengiRestClient, LeverageSettingsRequest},
     };
 
     #[tokio::test]
@@ -58,7 +56,11 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        let resp = rest.ledger(LedgerRequest::new()).await.unwrap();
+        let resp = rest
+            .v1()
+            .leverage_settings(LeverageSettingsRequest::new("BTC/USD_LEVERAGE".into()))
+            .await
+            .unwrap();
 
         println!("{:?}", resp)
     }

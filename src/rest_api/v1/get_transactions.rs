@@ -1,36 +1,35 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::MyTradesResponse,
+    models::TransactionDtoResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct MyTradesRequest {
-    pub symbol: String,
+pub struct TransactionsRequest {
     pub recv_window: Option<u64>,
     pub limit: Option<usize>,
     pub start_time: Option<u128>,
     pub end_time: Option<u128>,
 }
 
-impl DzengiRestClient {
-    pub async fn my_trades(
+impl RequestVersion1<'_> {
+    pub async fn transactions(
         &self,
-        request: MyTradesRequest,
-    ) -> DzengiRestClientResult<Vec<MyTradesResponse>> {
+        request: TransactionsRequest,
+    ) -> DzengiRestClientResult<Vec<TransactionDtoResponse>> {
         let settings = self.settings()?;
 
-        let mut query = Query::<6>::new();
+        let mut query = Query::<5>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/myTrades", self.demo))
+            .get(switch_url!("/api/v1/transactions", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -45,7 +44,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{DzengiRestClient, MyTradesRequest},
+        rest_api::{DzengiRestClient, TransactionsRequest},
     };
 
     #[tokio::test]
@@ -60,7 +59,8 @@ mod test {
         rest.calc_correction_with_server().await.unwrap();
 
         let resp = rest
-            .my_trades(MyTradesRequest::new("LTC/BTC".into()))
+            .v1()
+            .transactions(TransactionsRequest::new())
             .await
             .unwrap();
 

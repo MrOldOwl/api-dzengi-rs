@@ -1,4 +1,4 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
@@ -16,7 +16,7 @@ pub struct TradesAggregatedRequest {
     pub end_time: Option<u128>,
 }
 
-impl DzengiRestClient {
+impl RequestVersion1<'_> {
     pub async fn trades_aggregated(
         &self,
         request: TradesAggregatedRequest,
@@ -41,6 +41,7 @@ mod test {
         let rest = DzengiRestClient::new();
 
         let resp = rest
+            .v1()
             .trades_aggregated(
                 TradesAggregatedRequest::new("BTC/USD_LEVERAGE".into()).with_limit(Some(10)),
             )

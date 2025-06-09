@@ -1,17 +1,17 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TradingPositionListResponse,
+    models::FundingLimitsDtoResponse,
     response_models::RecvWindowRequest,
     switch_url,
 };
 
-impl DzengiRestClient {
-    pub async fn trading_positions(
+impl RequestVersion1<'_> {
+    pub async fn funding_limits(
         &self,
         request: RecvWindowRequest,
-    ) -> DzengiRestClientResult<TradingPositionListResponse> {
+    ) -> DzengiRestClientResult<Vec<FundingLimitsDtoResponse>> {
         let settings = self.settings()?;
 
         let mut query = Query::<2>::new();
@@ -20,7 +20,7 @@ impl DzengiRestClient {
         let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/tradingPositions", self.demo))
+            .get(switch_url!("/api/v1/fundingLimits", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(&query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -49,10 +49,10 @@ mod test {
         rest.calc_correction_with_server().await.unwrap();
 
         let resp = rest
-            .trading_positions(RecvWindowRequest::new())
+            .v1()
+            .funding_limits(RecvWindowRequest::new())
             .await
             .unwrap();
-
-        println!("{:?}", &resp);
+        println!("{:?}", &resp[..10]);
     }
 }

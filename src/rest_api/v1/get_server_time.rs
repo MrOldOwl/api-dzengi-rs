@@ -1,7 +1,7 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{errors::DzengiRestClientResult, help::AutoToJson, models::ServerTime, switch_url};
 
-impl DzengiRestClient {
+impl RequestVersion1<'_> {
     pub async fn server_time(&self) -> DzengiRestClientResult<ServerTime> {
         self.client
             .get(switch_url!("/api/v2/time", self.demo))
@@ -17,7 +17,7 @@ mod test {
     #[tokio::test]
     async fn test() {
         let rest = DzengiRestClient::new();
-        let resp = rest.server_time().await.unwrap();
+        let resp = rest.v1().server_time().await.unwrap();
         println!("{:?}", resp);
     }
 }

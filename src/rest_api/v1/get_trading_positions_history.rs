@@ -1,33 +1,36 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::OpenOrdersResponse,
+    models::TradingPositionHistoryResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct OpenOrdersRequest {
-    pub symbol: Option<String>,
+pub struct TradingPositionsHistoryRequest {
+    pub symbol: String,
     pub recv_window: Option<u64>,
+    pub limit: Option<usize>,
+    pub from: Option<u128>,
+    pub to: Option<u128>,
 }
 
-impl DzengiRestClient {
-    pub async fn open_orders(
+impl RequestVersion1<'_> {
+    pub async fn trading_positions_history(
         &self,
-        request: OpenOrdersRequest,
-    ) -> DzengiRestClientResult<Vec<OpenOrdersResponse>> {
+        request: TradingPositionsHistoryRequest,
+    ) -> DzengiRestClientResult<TradingPositionHistoryResponse> {
         let settings = self.settings()?;
 
-        let mut query = Query::<3>::new();
+        let mut query = Query::<6>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/openOrders", self.demo))
+            .get(switch_url!("/api/v1/tradingPositionsHistory", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -42,7 +45,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{DzengiRestClient, OpenOrdersRequest},
+        rest_api::{DzengiRestClient, TradingPositionsHistoryRequest},
     };
 
     #[tokio::test]
@@ -56,7 +59,12 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        let resp = rest.open_orders(OpenOrdersRequest::new()).await.unwrap();
+        // TODO: req invalid api
+        let resp = rest
+            .v1()
+            .trading_positions_history(TradingPositionsHistoryRequest::new("LTC/BTC".into()))
+            .await
+            .unwrap();
 
         println!("{:?}", resp)
     }

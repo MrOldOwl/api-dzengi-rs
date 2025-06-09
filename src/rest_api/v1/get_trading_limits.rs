@@ -1,4 +1,4 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
@@ -6,7 +6,7 @@ use crate::{
     switch_url,
 };
 
-impl DzengiRestClient {
+impl RequestVersion1<'_> {
     pub async fn trading_limits(
         &self,
         request: SymbolRequest,
@@ -33,6 +33,7 @@ mod test {
         rest.calc_correction_with_server().await.unwrap();
 
         let resp = rest
+            .v1()
             .trading_limits(SymbolRequest::new("BTC/USD".into()))
             .await
             .unwrap();

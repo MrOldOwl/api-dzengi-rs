@@ -1,42 +1,36 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TradingOrderUpdateResponse,
+    models::EditExchangeOrderResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, RequestMethods)]
-pub struct UpdateTradingOrderRequest {
+pub struct ChangeOrderRequest {
+    pub order_id: String,
     pub recv_window: Option<u64>,
     pub expire_timestamp: Option<i64>,
-    pub guaranteed_stop_loss: Option<bool>,
-    pub new_price: Option<f64>,
-    pub order_id: String,
-    pub profit_distance: Option<f64>,
-    pub stop_distance: Option<f64>,
-    pub stop_loss: Option<f64>,
-    pub take_profit: Option<f64>,
-    pub trailing_stop_loss: Option<bool>,
+    pub price: Option<f64>,
 }
 
-impl DzengiRestClient {
-    pub async fn update_trading_order(
+impl RequestVersion1<'_> {
+    pub async fn order_change(
         &self,
-        request: UpdateTradingOrderRequest,
-    ) -> DzengiRestClientResult<TradingOrderUpdateResponse> {
+        request: ChangeOrderRequest,
+    ) -> DzengiRestClientResult<EditExchangeOrderResponse> {
         let settings = self.settings()?;
 
-        let mut query = Query::<11>::new();
+        let mut query = Query::<5>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
 
         let signature = query.gen_signature(settings)?;
 
         self.client
-            .post(switch_url!("/api/v1/updateTradingOrder", self.demo))
+            .put(switch_url!("/api/v1/order", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -51,7 +45,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{DzengiRestClient, UpdateTradingOrderRequest},
+        rest_api::{ChangeOrderRequest, DzengiRestClient},
     };
 
     #[tokio::test]
@@ -66,9 +60,10 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        //TODO: create order
+        //TODO: create order in demo
         let resp = rest
-            .update_trading_order(UpdateTradingOrderRequest::new("id".into()))
+            .v1()
+            .order_change(ChangeOrderRequest::new("id".into()))
             .await;
 
         match resp {

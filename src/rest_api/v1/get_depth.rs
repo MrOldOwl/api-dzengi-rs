@@ -1,4 +1,4 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
@@ -14,7 +14,7 @@ pub struct DepthRequest {
     pub limit: Option<usize>,
 }
 
-impl DzengiRestClient {
+impl RequestVersion1<'_> {
     pub async fn depth(&self, request: DepthRequest) -> DzengiRestClientResult<DepthResponse> {
         let mut query = Query::<2>::new();
         request.fill_query(&mut query);
@@ -36,6 +36,7 @@ mod test {
         let rest = DzengiRestClient::new();
 
         let resp = rest
+            .v1()
             .depth(DepthRequest::new("BTC/USD_LEVERAGE".into()).with_limit(Some(10)))
             .await
             .unwrap();

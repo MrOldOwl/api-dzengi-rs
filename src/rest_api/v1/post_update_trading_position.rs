@@ -1,4 +1,4 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
@@ -20,7 +20,7 @@ pub struct UpdateTradingPositionRequest {
     pub trailing_stop_loss: Option<bool>,
 }
 
-impl DzengiRestClient {
+impl RequestVersion1<'_> {
     pub async fn update_trading_position(
         &self,
         request: UpdateTradingPositionRequest,
@@ -66,6 +66,7 @@ mod test {
 
         //TODO: create order; Combination of parameters invalid
         let resp = rest
+            .v1()
             .update_trading_position(UpdateTradingPositionRequest::new("id".into()))
             .await;
 

@@ -1,21 +1,18 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
-    models::{SymbolRequest, TradingFeesResponse},
+    models::{SymbolRequest, Ticker24hr},
     switch_url,
 };
 
-impl DzengiRestClient {
-    pub async fn trading_fees(
-        &self,
-        request: SymbolRequest,
-    ) -> DzengiRestClientResult<Vec<TradingFeesResponse>> {
+impl RequestVersion1<'_> {
+    pub async fn ticker_24hr(&self, request: SymbolRequest) -> DzengiRestClientResult<Ticker24hr> {
         let mut query = Query::<1>::new();
         request.fill_query(&mut query);
 
         self.client
-            .get(switch_url!("/api/v1/tradingFees", self.demo))
+            .get(switch_url!("/api/v1/ticker/24hr", self.demo))
             .query(&query.as_slice())
             .send_and_json()
             .await
@@ -33,7 +30,8 @@ mod test {
         rest.calc_correction_with_server().await.unwrap();
 
         let resp = rest
-            .trading_fees(SymbolRequest::new("BTC/USD".into()))
+            .v1()
+            .ticker_24hr(SymbolRequest::new("BTC/USD".into()))
             .await
             .unwrap();
 

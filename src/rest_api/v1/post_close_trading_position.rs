@@ -1,33 +1,33 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::LeverageSettingsResponse,
+    models::TradingPositionCloseAllResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct LeverageSettingsRequest {
-    pub symbol: String,
+pub struct CloseTradingPositionRequest {
+    pub position_id: String,
     pub recv_window: Option<u64>,
 }
 
-impl DzengiRestClient {
-    pub async fn leverage_settings(
+impl RequestVersion1<'_> {
+    pub async fn close_trading_position(
         &self,
-        request: LeverageSettingsRequest,
-    ) -> DzengiRestClientResult<LeverageSettingsResponse> {
+        request: CloseTradingPositionRequest,
+    ) -> DzengiRestClientResult<TradingPositionCloseAllResponse> {
         let settings = self.settings()?;
 
         let mut query = Query::<3>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
-        let signature = query.gen_signature(&settings)?;
+        let signature = query.gen_signature(settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/leverageSettings", self.demo))
+            .post(switch_url!("/api/v1/closeTradingPosition", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -42,7 +42,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{DzengiRestClient, LeverageSettingsRequest},
+        rest_api::{CloseTradingPositionRequest, DzengiRestClient},
     };
 
     #[tokio::test]
@@ -51,16 +51,24 @@ mod test {
         let api_key = ent_file["API_KEY"].clone();
         let secret = ent_file["SECRET"].clone();
 
-        let mut rest =
-            DzengiRestClient::new().with_user_settings(Some(UserSettings::new(api_key, secret)));
+        let mut rest = DzengiRestClient::new()
+            .with_user_settings(Some(UserSettings::new(api_key, secret)))
+            .demo_url();
 
         rest.calc_correction_with_server().await.unwrap();
 
+        //TODO: CREATE POSITION IN DEMO
         let resp = rest
-            .leverage_settings(LeverageSettingsRequest::new("BTC/USD_LEVERAGE".into()))
-            .await
-            .unwrap();
+            .v1()
+            .close_trading_position(CloseTradingPositionRequest::new("".into()))
+            .await;
 
-        println!("{:?}", resp)
+        match resp {
+            Err(x) => {
+                println!("{x:?}");
+                assert!(true)
+            }
+            _ => assert!(false),
+        }
     }
 }

@@ -1,36 +1,37 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::FetchOrderResponse,
+    models::CancelOrderResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct FetchOrderRequest {
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, RequestMethods)]
+pub struct CancelOrderRequest {
     pub symbol: String,
     pub order_id: String,
     pub recv_window: Option<u64>,
 }
 
-impl DzengiRestClient {
-    pub async fn fetch_order(
+impl RequestVersion1<'_> {
+    pub async fn order_cancel(
         &self,
-        request: FetchOrderRequest,
-    ) -> DzengiRestClientResult<FetchOrderResponse> {
+        request: CancelOrderRequest,
+    ) -> DzengiRestClientResult<CancelOrderResponse> {
         let settings = self.settings()?;
 
         let mut query = Query::<4>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
-        let signature = query.gen_signature(&settings)?;
+
+        let signature = query.gen_signature(settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/fetchOrder", self.demo))
+            .delete(switch_url!("/api/v1/order", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
-            .query(&query.as_slice())
+            .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
             .send_and_json()
             .await
@@ -43,7 +44,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{DzengiRestClient, FetchOrderRequest},
+        rest_api::{CancelOrderRequest, DzengiRestClient},
     };
 
     #[tokio::test]
@@ -58,12 +59,18 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        //TODO: CREATE ORDER IN DEMO
+        //TODO: create order in demo
         let resp = rest
-            .fetch_order(FetchOrderRequest::new("BTC/USD_LEVERAGE".into(), "".into()))
-            .await
-            .unwrap();
+            .v1()
+            .order_cancel(CancelOrderRequest::new("BTC/USD".into(), "ID".into()))
+            .await;
 
-        println!("{:?}", resp);
+        match resp {
+            Err(x) => {
+                println!("{x:?}");
+                assert!(true)
+            }
+            _ => assert!(false),
+        }
     }
 }

@@ -1,38 +1,28 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TradingPositionHistoryResponse,
+    models::TradingPositionListResponse,
+    response_models::RecvWindowRequest,
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct TradingPositionsHistoryRequest {
-    pub symbol: String,
-    pub recv_window: Option<u64>,
-    pub limit: Option<usize>,
-    pub from: Option<u128>,
-    pub to: Option<u128>,
-}
-
-impl DzengiRestClient {
-    pub async fn trading_positions_history(
+impl RequestVersion1<'_> {
+    pub async fn trading_positions(
         &self,
-        request: TradingPositionsHistoryRequest,
-    ) -> DzengiRestClientResult<TradingPositionHistoryResponse> {
+        request: RecvWindowRequest,
+    ) -> DzengiRestClientResult<TradingPositionListResponse> {
         let settings = self.settings()?;
 
-        let mut query = Query::<6>::new();
+        let mut query = Query::<2>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/tradingPositionsHistory", self.demo))
+            .get(switch_url!("/api/v1/tradingPositions", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
-            .query(query.as_slice())
+            .query(&query.as_slice())
             .query(&DefaultKeys::signature(&signature))
             .send_and_json()
             .await
@@ -44,8 +34,7 @@ mod test {
     use env_file_reader::read_file;
 
     use crate::{
-        crypto::UserSettings,
-        rest_api::{DzengiRestClient, TradingPositionsHistoryRequest},
+        crypto::UserSettings, response_models::RecvWindowRequest, rest_api::DzengiRestClient,
     };
 
     #[tokio::test]
@@ -59,12 +48,12 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        // TODO: req invalid api
         let resp = rest
-            .trading_positions_history(TradingPositionsHistoryRequest::new("LTC/BTC".into()))
+            .v1()
+            .trading_positions(RecvWindowRequest::new())
             .await
             .unwrap();
 
-        println!("{:?}", resp)
+        println!("{:?}", &resp);
     }
 }

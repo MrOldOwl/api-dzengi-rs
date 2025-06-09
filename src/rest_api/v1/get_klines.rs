@@ -1,4 +1,4 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     enums::Interval,
     errors::DzengiRestClientResult,
@@ -20,7 +20,7 @@ pub struct KlinesRequest {
     pub end_time: Option<u128>,
 }
 
-impl DzengiRestClient {
+impl RequestVersion1<'_> {
     pub async fn klines(
         &self,
         request: KlinesRequest,
@@ -48,6 +48,7 @@ mod test {
         let rest = DzengiRestClient::new();
 
         let resp = rest
+            .v1()
             .klines(
                 KlinesRequest::new("BTC/USD_LEVERAGE".into(), Interval::FiveMinutes)
                     .with_limit(Some(10)),

@@ -1,28 +1,38 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::FundingLimitsDtoResponse,
-    response_models::RecvWindowRequest,
+    models::MyTradesResponse,
     switch_url,
 };
+use macr::RequestMethods;
+use serde::{Deserialize, Serialize};
 
-impl DzengiRestClient {
-    pub async fn funding_limits(
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
+pub struct MyTradesRequest {
+    pub symbol: String,
+    pub recv_window: Option<u64>,
+    pub limit: Option<usize>,
+    pub start_time: Option<u128>,
+    pub end_time: Option<u128>,
+}
+
+impl RequestVersion1<'_> {
+    pub async fn my_trades(
         &self,
-        request: RecvWindowRequest,
-    ) -> DzengiRestClientResult<Vec<FundingLimitsDtoResponse>> {
+        request: MyTradesRequest,
+    ) -> DzengiRestClientResult<Vec<MyTradesResponse>> {
         let settings = self.settings()?;
 
-        let mut query = Query::<2>::new();
+        let mut query = Query::<6>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/fundingLimits", self.demo))
+            .get(switch_url!("/api/v1/myTrades", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
-            .query(&query.as_slice())
+            .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
             .send_and_json()
             .await
@@ -34,7 +44,8 @@ mod test {
     use env_file_reader::read_file;
 
     use crate::{
-        crypto::UserSettings, response_models::RecvWindowRequest, rest_api::DzengiRestClient,
+        crypto::UserSettings,
+        rest_api::{DzengiRestClient, MyTradesRequest},
     };
 
     #[tokio::test]
@@ -48,7 +59,12 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        let resp = rest.funding_limits(RecvWindowRequest::new()).await.unwrap();
-        println!("{:?}", &resp[..10]);
+        let resp = rest
+            .v1()
+            .my_trades(MyTradesRequest::new("LTC/BTC".into()))
+            .await
+            .unwrap();
+
+        println!("{:?}", resp)
     }
 }

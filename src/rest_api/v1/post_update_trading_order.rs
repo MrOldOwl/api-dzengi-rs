@@ -1,50 +1,42 @@
-use super::DzengiRestClient;
+use super::RequestVersion1;
 use crate::{
-    enums::{OrderType, Side},
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::NewOrderResponseResult,
+    models::TradingOrderUpdateResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, RequestMethods)]
-pub struct CreateOrderRequest {
-    pub symbol: String,
-    pub side: Side,
-    pub quantity: f64,
-    #[serde(rename = "type")]
-    pub order_type: OrderType,
-    pub account_id: Option<String>,
+pub struct UpdateTradingOrderRequest {
+    pub recv_window: Option<u64>,
     pub expire_timestamp: Option<i64>,
     pub guaranteed_stop_loss: Option<bool>,
-    pub leverage: Option<i32>,
-    pub price: Option<f64>,
+    pub new_price: Option<f64>,
+    pub order_id: String,
     pub profit_distance: Option<f64>,
-    pub recv_window: Option<u64>,
-    pub new_order_resp_type: Option<String>,
     pub stop_distance: Option<f64>,
     pub stop_loss: Option<f64>,
     pub take_profit: Option<f64>,
     pub trailing_stop_loss: Option<bool>,
 }
 
-impl DzengiRestClient {
-    pub async fn order_create(
+impl RequestVersion1<'_> {
+    pub async fn update_trading_order(
         &self,
-        request: CreateOrderRequest,
-    ) -> DzengiRestClientResult<NewOrderResponseResult> {
+        request: UpdateTradingOrderRequest,
+    ) -> DzengiRestClientResult<TradingOrderUpdateResponse> {
         let settings = self.settings()?;
 
-        let mut query = Query::<17>::new();
+        let mut query = Query::<11>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
 
         let signature = query.gen_signature(settings)?;
 
         self.client
-            .post(switch_url!("/api/v1/order", self.demo))
+            .post(switch_url!("/api/v1/updateTradingOrder", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -59,8 +51,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        enums::{OrderType, Side},
-        rest_api::{CreateOrderRequest, DzengiRestClient},
+        rest_api::{DzengiRestClient, UpdateTradingOrderRequest},
     };
 
     #[tokio::test]
@@ -75,13 +66,10 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
+        //TODO: create order
         let resp = rest
-            .order_create(CreateOrderRequest::new(
-                "XRP/USD".into(),
-                Side::Buy,
-                1.0,
-                OrderType::Market,
-            ))
+            .v1()
+            .update_trading_order(UpdateTradingOrderRequest::new("id".into()))
             .await;
 
         match resp {
