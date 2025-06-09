@@ -24,18 +24,18 @@ impl UserSettings {
 
     pub fn generate_signature(
         &self,
-        params: &[(impl AsRef<str>, impl AsRef<str>)],
+        query_pairs: &[(impl AsRef<str>, impl AsRef<str>)],
     ) -> Result<Zeroizing<String>, CryptoError> {
-        if params.len() == 0 {
+        if query_pairs.len() == 0 {
             return Err(CryptoError::ParamsEmpty);
         }
 
-        let mut pairs = params
+        let mut query_combine = query_pairs
             .iter()
             .map(|x| format!("{}={}", x.0.as_ref(), x.1.as_ref()));
 
-        let mut query_string = pairs.next().unwrap();
-        while let Some(pair) = pairs.next() {
+        let mut query_string = query_combine.next().unwrap();
+        while let Some(pair) = query_combine.next() {
             query_string.push('&');
             query_string.push_str(pair.as_str());
         }
