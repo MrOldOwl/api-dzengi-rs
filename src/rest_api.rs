@@ -60,7 +60,7 @@ impl DzengiRestClient {
     pub async fn calc_correction_with_server(&mut self) -> DzengiRestClientResult<()> {
         self.correction_time.with_correction(CorrectionTime::None);
         let local_time = self.correction_time.timestamp_now()?;
-        let server_time = self.server_time().await?.server_time;
+        let server_time = self.v2().server_time().await?.server_time;
         self.correction_time
             .with_correction(match local_time.cmp(&server_time) {
                 std::cmp::Ordering::Equal => CorrectionTime::None,
@@ -70,8 +70,12 @@ impl DzengiRestClient {
         Ok(())
     }
 
-    pub fn v1(&self) -> RequestVersion1 {
-        RequestVersion1::new(self)
+    pub fn v1(&self) -> Version1 {
+        Version1::new(self)
+    }
+
+    pub fn v2(&self) -> Version2 {
+        Version2::new(self)
     }
 }
 

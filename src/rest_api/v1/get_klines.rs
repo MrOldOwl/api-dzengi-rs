@@ -1,4 +1,4 @@
-use super::RequestVersion1;
+use super::Version1;
 use crate::{
     enums::Interval,
     errors::DzengiRestClientResult,
@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 pub struct KlinesRequest {
     pub symbol: String,
     pub interval: Interval,
+    #[serde(rename = "type")]
     pub kline_type: Option<String>,
     pub price_type: Option<String>,
     pub limit: Option<usize>,
@@ -20,7 +21,7 @@ pub struct KlinesRequest {
     pub end_time: Option<u128>,
 }
 
-impl RequestVersion1<'_> {
+impl Version1<'_> {
     pub async fn klines(
         &self,
         request: KlinesRequest,

@@ -1,33 +1,50 @@
-use super::Version1;
+use super::Version2;
 use crate::{
+    enums::{OrderType, Side},
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TradingPositionCloseAllResponse,
+    models::NewOrderResponseResult,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct CloseTradingPositionRequest {
-    pub position_id: String,
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, RequestMethods)]
+pub struct CreateOrderRequest {
+    pub symbol: String,
+    pub side: Side,
+    pub quantity: f64,
+    #[serde(rename = "type")]
+    pub order_type: OrderType,
+    pub account_id: Option<String>,
+    pub expire_timestamp: Option<i64>,
+    pub guaranteed_stop_loss: Option<bool>,
+    pub leverage: Option<i32>,
+    pub price: Option<f64>,
+    pub profit_distance: Option<f64>,
     pub recv_window: Option<u64>,
+    pub new_order_resp_type: Option<String>,
+    pub stop_distance: Option<f64>,
+    pub stop_loss: Option<f64>,
+    pub take_profit: Option<f64>,
+    pub trailing_stop_loss: Option<bool>,
 }
 
-impl Version1<'_> {
-    pub async fn close_trading_position(
+impl Version2<'_> {
+    pub async fn order_create(
         &self,
-        request: CloseTradingPositionRequest,
-    ) -> DzengiRestClientResult<TradingPositionCloseAllResponse> {
+        request: CreateOrderRequest,
+    ) -> DzengiRestClientResult<NewOrderResponseResult> {
         let settings = self.settings()?;
 
-        let mut query = Query::<3>::new();
+        let mut query = Query::<17>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
+
         let signature = query.gen_signature(settings)?;
 
         self.client
-            .post(switch_url!("/api/v1/closeTradingPosition", self.demo))
+            .post(switch_url!("/api/v2/order", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -42,7 +59,8 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{CloseTradingPositionRequest, DzengiRestClient},
+        enums::{OrderType, Side},
+        rest_api::{CreateOrderRequest, DzengiRestClient},
     };
 
     #[tokio::test]
@@ -57,10 +75,14 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        //TODO: CREATE POSITION IN DEMO
         let resp = rest
-            .v1()
-            .close_trading_position(CloseTradingPositionRequest::new("".into()))
+            .v2()
+            .order_create(CreateOrderRequest::new(
+                "XRP/USD".into(),
+                Side::Buy,
+                1.0,
+                OrderType::Market,
+            ))
             .await;
 
         match resp {

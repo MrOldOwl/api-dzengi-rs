@@ -1,37 +1,36 @@
-use super::Version1;
+use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TransactionDtoResponse,
+    models::FetchOrderResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct DepositsRequest {
-    pub limit: Option<usize>,
-    pub start_time: Option<u128>,
-    pub end_time: Option<u128>,
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
+pub struct FetchOrderRequest {
+    pub symbol: String,
+    pub order_id: String,
     pub recv_window: Option<u64>,
 }
 
-impl Version1<'_> {
-    pub async fn deposits(
+impl Version2<'_> {
+    pub async fn fetch_order(
         &self,
-        request: DepositsRequest,
-    ) -> DzengiRestClientResult<Vec<TransactionDtoResponse>> {
+        request: FetchOrderRequest,
+    ) -> DzengiRestClientResult<FetchOrderResponse> {
         let settings = self.settings()?;
 
-        let mut query = Query::<5>::new();
+        let mut query = Query::<4>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
         let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/deposits", self.demo))
+            .get(switch_url!("/api/v2/fetchOrder", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
-            .query(query.as_slice())
+            .query(&query.as_slice())
             .query(&DefaultKeys::signature(&signature))
             .send_and_json()
             .await
@@ -44,7 +43,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{DepositsRequest, DzengiRestClient},
+        rest_api::{DzengiRestClient, FetchOrderRequest},
     };
 
     #[tokio::test]
@@ -53,17 +52,19 @@ mod test {
         let api_key = ent_file["API_KEY"].clone();
         let secret = ent_file["SECRET"].clone();
 
-        let mut rest =
-            DzengiRestClient::new().with_user_settings(Some(UserSettings::new(api_key, secret)));
+        let mut rest = DzengiRestClient::new()
+            .with_user_settings(Some(UserSettings::new(api_key, secret)))
+            .demo_url();
 
         rest.calc_correction_with_server().await.unwrap();
 
+        //TODO: CREATE ORDER IN DEMO
         let resp = rest
-            .v1()
-            .deposits(DepositsRequest::new().with_limit(Some(10)))
+            .v2()
+            .fetch_order(FetchOrderRequest::new("BTC/USD_LEVERAGE".into(), "".into()))
             .await
             .unwrap();
 
-        println!("{:?}", resp)
+        println!("{:?}", resp);
     }
 }

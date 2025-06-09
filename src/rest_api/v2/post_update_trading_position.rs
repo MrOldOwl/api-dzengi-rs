@@ -1,33 +1,40 @@
-use super::Version1;
+use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TradingPositionCloseAllResponse,
+    models::TradingPositionUpdateResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct CloseTradingPositionRequest {
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, RequestMethods)]
+pub struct UpdateTradingPositionRequest {
     pub position_id: String,
     pub recv_window: Option<u64>,
+    pub guaranteed_stop_loss: Option<bool>,
+    pub profit_distance: Option<f64>,
+    pub stop_distance: Option<f64>,
+    pub stop_loss: Option<f64>,
+    pub take_profit: Option<f64>,
+    pub trailing_stop_loss: Option<bool>,
 }
 
-impl Version1<'_> {
-    pub async fn close_trading_position(
+impl Version2<'_> {
+    pub async fn update_trading_position(
         &self,
-        request: CloseTradingPositionRequest,
-    ) -> DzengiRestClientResult<TradingPositionCloseAllResponse> {
+        request: UpdateTradingPositionRequest,
+    ) -> DzengiRestClientResult<TradingPositionUpdateResponse> {
         let settings = self.settings()?;
 
-        let mut query = Query::<3>::new();
+        let mut query = Query::<9>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
+
         let signature = query.gen_signature(settings)?;
 
         self.client
-            .post(switch_url!("/api/v1/closeTradingPosition", self.demo))
+            .post(switch_url!("/api/v2/updateTradingPosition", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -42,7 +49,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{CloseTradingPositionRequest, DzengiRestClient},
+        rest_api::{DzengiRestClient, UpdateTradingPositionRequest},
     };
 
     #[tokio::test]
@@ -57,10 +64,10 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        //TODO: CREATE POSITION IN DEMO
+        //TODO: create order; Combination of parameters invalid
         let resp = rest
-            .v1()
-            .close_trading_position(CloseTradingPositionRequest::new("".into()))
+            .v2()
+            .update_trading_position(UpdateTradingPositionRequest::new("id".into()))
             .await;
 
         match resp {

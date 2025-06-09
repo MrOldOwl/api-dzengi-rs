@@ -1,4 +1,4 @@
-use super::RequestVersion1;
+use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
@@ -16,7 +16,7 @@ pub struct ChangeOrderRequest {
     pub price: Option<f64>,
 }
 
-impl RequestVersion1<'_> {
+impl Version1<'_> {
     pub async fn order_change(
         &self,
         request: ChangeOrderRequest,

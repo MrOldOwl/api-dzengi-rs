@@ -1,7 +1,6 @@
-use std::ops::Deref;
-
 use super::DzengiRestClient;
 use crate::auto_import_models;
+use std::ops::Deref;
 
 auto_import_models! {
     get_account_info,
@@ -34,15 +33,15 @@ auto_import_models! {
     get_withdrawals
 }
 
-pub struct RequestVersion1<'a>(&'a DzengiRestClient);
+pub struct Version1<'a>(&'a DzengiRestClient);
 
-impl<'a> RequestVersion1<'a> {
-    pub fn new(client: &'a DzengiRestClient) -> RequestVersion1<'a> {
+impl<'a> Version1<'a> {
+    pub fn new(client: &'a DzengiRestClient) -> Self {
         Self(client)
     }
 }
 
-impl<'a> Deref for RequestVersion1<'a> {
+impl<'a> Deref for Version1<'a> {
     type Target = DzengiRestClient;
 
     fn deref(&self) -> &Self::Target {

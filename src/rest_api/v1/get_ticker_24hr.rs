@@ -1,4 +1,4 @@
-use super::RequestVersion1;
+use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
@@ -6,7 +6,7 @@ use crate::{
     switch_url,
 };
 
-impl RequestVersion1<'_> {
+impl Version1<'_> {
     pub async fn ticker_24hr(&self, request: SymbolRequest) -> DzengiRestClientResult<Ticker24hr> {
         let mut query = Query::<1>::new();
         request.fill_query(&mut query);

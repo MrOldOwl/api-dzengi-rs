@@ -1,4 +1,4 @@
-use super::Version1;
+use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
@@ -14,7 +14,7 @@ pub struct CloseTradingPositionRequest {
     pub recv_window: Option<u64>,
 }
 
-impl Version1<'_> {
+impl Version2<'_> {
     pub async fn close_trading_position(
         &self,
         request: CloseTradingPositionRequest,
@@ -27,7 +27,7 @@ impl Version1<'_> {
         let signature = query.gen_signature(settings)?;
 
         self.client
-            .post(switch_url!("/api/v1/closeTradingPosition", self.demo))
+            .post(switch_url!("/api/v2/closeTradingPosition", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -59,7 +59,7 @@ mod test {
 
         //TODO: CREATE POSITION IN DEMO
         let resp = rest
-            .v1()
+            .v2()
             .close_trading_position(CloseTradingPositionRequest::new("".into()))
             .await;
 

@@ -1,4 +1,4 @@
-use super::RequestVersion1;
+use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
@@ -16,7 +16,7 @@ pub struct LedgerRequest {
     pub end_time: Option<u128>,
 }
 
-impl RequestVersion1<'_> {
+impl Version1<'_> {
     pub async fn ledger(
         &self,
         request: LedgerRequest,

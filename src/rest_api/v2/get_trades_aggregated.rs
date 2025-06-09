@@ -1,4 +1,4 @@
-use super::Version1;
+use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
@@ -9,23 +9,23 @@ use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct AggTradesRequest {
+pub struct TradesAggregatedRequest {
     pub symbol: String,
     pub limit: Option<usize>,
     pub start_time: Option<u128>,
     pub end_time: Option<u128>,
 }
 
-impl Version1<'_> {
+impl Version2<'_> {
     pub async fn trades_aggregated(
         &self,
-        request: AggTradesRequest,
+        request: TradesAggregatedRequest,
     ) -> DzengiRestClientResult<Vec<AggTrades>> {
         let mut query = Query::<4>::new();
         request.fill_query(&mut query);
 
         self.client
-            .get(switch_url!("/api/v1/aggTrades", self.demo))
+            .get(switch_url!("/api/v2/aggTrades", self.demo))
             .query(query.as_slice())
             .send_and_json()
             .await
@@ -41,7 +41,7 @@ mod test {
         let rest = DzengiRestClient::new();
 
         let resp = rest
-            .v1()
+            .v2()
             .trades_aggregated(
                 AggTradesRequest::new("BTC/USD_LEVERAGE".into()).with_limit(Some(10)),
             )

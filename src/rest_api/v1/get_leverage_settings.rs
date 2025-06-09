@@ -1,4 +1,4 @@
-use super::RequestVersion1;
+use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
@@ -14,7 +14,7 @@ pub struct LeverageSettingsRequest {
     pub recv_window: Option<u64>,
 }
 
-impl RequestVersion1<'_> {
+impl Version1<'_> {
     pub async fn leverage_settings(
         &self,
         request: LeverageSettingsRequest,

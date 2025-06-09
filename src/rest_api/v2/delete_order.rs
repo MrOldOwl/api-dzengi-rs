@@ -1,33 +1,35 @@
-use super::Version1;
+use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TradingPositionCloseAllResponse,
+    models::CancelOrderResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct CloseTradingPositionRequest {
-    pub position_id: String,
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, RequestMethods)]
+pub struct CancelOrderRequest {
+    pub symbol: String,
+    pub order_id: String,
     pub recv_window: Option<u64>,
 }
 
-impl Version1<'_> {
-    pub async fn close_trading_position(
+impl Version2<'_> {
+    pub async fn order_cancel(
         &self,
-        request: CloseTradingPositionRequest,
-    ) -> DzengiRestClientResult<TradingPositionCloseAllResponse> {
+        request: CancelOrderRequest,
+    ) -> DzengiRestClientResult<CancelOrderResponse> {
         let settings = self.settings()?;
 
-        let mut query = Query::<3>::new();
+        let mut query = Query::<4>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
+
         let signature = query.gen_signature(settings)?;
 
         self.client
-            .post(switch_url!("/api/v1/closeTradingPosition", self.demo))
+            .delete(switch_url!("/api/v2/order", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -42,7 +44,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{CloseTradingPositionRequest, DzengiRestClient},
+        rest_api::{CancelOrderRequest, DzengiRestClient},
     };
 
     #[tokio::test]
@@ -57,10 +59,10 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        //TODO: CREATE POSITION IN DEMO
+        //TODO: create order in demo
         let resp = rest
-            .v1()
-            .close_trading_position(CloseTradingPositionRequest::new("".into()))
+            .v2()
+            .order_cancel(CancelOrderRequest::new("BTC/USD".into(), "ID".into()))
             .await;
 
         match resp {

@@ -1,4 +1,4 @@
-use super::RequestVersion1;
+use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
@@ -7,7 +7,7 @@ use crate::{
     switch_url,
 };
 
-impl RequestVersion1<'_> {
+impl Version1<'_> {
     pub async fn trading_positions(
         &self,
         request: RecvWindowRequest,

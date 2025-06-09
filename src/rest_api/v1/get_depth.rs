@@ -1,4 +1,4 @@
-use super::RequestVersion1;
+use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
@@ -14,7 +14,7 @@ pub struct DepthRequest {
     pub limit: Option<usize>,
 }
 
-impl RequestVersion1<'_> {
+impl Version1<'_> {
     pub async fn depth(&self, request: DepthRequest) -> DzengiRestClientResult<DepthResponse> {
         let mut query = Query::<2>::new();
         request.fill_query(&mut query);

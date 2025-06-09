@@ -1,4 +1,4 @@
-use super::RequestVersion1;
+use super::Version1;
 use crate::{
     enums::{OrderType, Side},
     errors::DzengiRestClientResult,
@@ -30,7 +30,7 @@ pub struct CreateOrderRequest {
     pub trailing_stop_loss: Option<bool>,
 }
 
-impl RequestVersion1<'_> {
+impl Version1<'_> {
     pub async fn order_create(
         &self,
         request: CreateOrderRequest,

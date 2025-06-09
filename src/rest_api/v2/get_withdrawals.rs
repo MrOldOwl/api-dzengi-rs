@@ -1,4 +1,4 @@
-use super::Version1;
+use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
@@ -9,17 +9,17 @@ use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct DepositsRequest {
+pub struct WithdrawalsRequest {
     pub limit: Option<usize>,
     pub start_time: Option<u128>,
     pub end_time: Option<u128>,
     pub recv_window: Option<u64>,
 }
 
-impl Version1<'_> {
-    pub async fn deposits(
+impl Version2<'_> {
+    pub async fn withdrawals(
         &self,
-        request: DepositsRequest,
+        request: WithdrawalsRequest,
     ) -> DzengiRestClientResult<Vec<TransactionDtoResponse>> {
         let settings = self.settings()?;
 
@@ -29,7 +29,7 @@ impl Version1<'_> {
         let signature = query.gen_signature(&settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/deposits", self.demo))
+            .get(switch_url!("/api/v2/withdrawals", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -44,7 +44,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{DepositsRequest, DzengiRestClient},
+        rest_api::{DzengiRestClient, WithdrawalsRequest},
     };
 
     #[tokio::test]
@@ -59,8 +59,8 @@ mod test {
         rest.calc_correction_with_server().await.unwrap();
 
         let resp = rest
-            .v1()
-            .deposits(DepositsRequest::new().with_limit(Some(10)))
+            .v2()
+            .withdrawals(WithdrawalsRequest::new().with_limit(Some(10)))
             .await
             .unwrap();
 

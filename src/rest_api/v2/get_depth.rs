@@ -1,31 +1,26 @@
-use super::Version1;
+use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
-    models::AggTrades,
+    models::DepthResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct AggTradesRequest {
+pub struct DepthRequest {
     pub symbol: String,
     pub limit: Option<usize>,
-    pub start_time: Option<u128>,
-    pub end_time: Option<u128>,
 }
 
-impl Version1<'_> {
-    pub async fn trades_aggregated(
-        &self,
-        request: AggTradesRequest,
-    ) -> DzengiRestClientResult<Vec<AggTrades>> {
-        let mut query = Query::<4>::new();
+impl Version2<'_> {
+    pub async fn depth(&self, request: DepthRequest) -> DzengiRestClientResult<DepthResponse> {
+        let mut query = Query::<2>::new();
         request.fill_query(&mut query);
 
         self.client
-            .get(switch_url!("/api/v1/aggTrades", self.demo))
+            .get(switch_url!("/api/v2/depth", self.demo))
             .query(query.as_slice())
             .send_and_json()
             .await
@@ -34,17 +29,15 @@ impl Version1<'_> {
 
 #[cfg(test)]
 mod test {
-    use crate::rest_api::{AggTradesRequest, DzengiRestClient};
+    use crate::rest_api::{DepthRequest, DzengiRestClient};
 
     #[tokio::test]
     async fn test() {
         let rest = DzengiRestClient::new();
 
         let resp = rest
-            .v1()
-            .trades_aggregated(
-                AggTradesRequest::new("BTC/USD_LEVERAGE".into()).with_limit(Some(10)),
-            )
+            .v2()
+            .depth(DepthRequest::new("BTC/USD_LEVERAGE".into()).with_limit(Some(10)))
             .await
             .unwrap();
 

@@ -1,35 +1,33 @@
-use super::Version1;
+use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TransactionDtoResponse,
+    models::AccountResponse,
     switch_url,
 };
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct DepositsRequest {
-    pub limit: Option<usize>,
-    pub start_time: Option<u128>,
-    pub end_time: Option<u128>,
+#[derive(Debug, Clone, Default, Copy, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
+pub struct AccountInfoRequest {
+    pub show_zero_balance: Option<bool>,
     pub recv_window: Option<u64>,
 }
 
-impl Version1<'_> {
-    pub async fn deposits(
+impl Version2<'_> {
+    pub async fn account_info(
         &self,
-        request: DepositsRequest,
-    ) -> DzengiRestClientResult<Vec<TransactionDtoResponse>> {
+        request: AccountInfoRequest,
+    ) -> DzengiRestClientResult<AccountResponse> {
         let settings = self.settings()?;
 
-        let mut query = Query::<5>::new();
+        let mut query = Query::<3>::new();
         query.add_item(DefaultKeys::timestamp(&self)?);
         request.fill_query(&mut query);
-        let signature = query.gen_signature(&settings)?;
+        let signature = query.gen_signature(settings)?;
 
         self.client
-            .get(switch_url!("/api/v1/deposits", self.demo))
+            .get(switch_url!("/api/v2/account", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))
@@ -44,7 +42,7 @@ mod test {
 
     use crate::{
         crypto::UserSettings,
-        rest_api::{DepositsRequest, DzengiRestClient},
+        rest_api::{AccountInfoRequest, DzengiRestClient},
     };
 
     #[tokio::test]
@@ -59,11 +57,10 @@ mod test {
         rest.calc_correction_with_server().await.unwrap();
 
         let resp = rest
-            .v1()
-            .deposits(DepositsRequest::new().with_limit(Some(10)))
+            .v2()
+            .account_info(AccountInfoRequest::new())
             .await
             .unwrap();
-
-        println!("{:?}", resp)
+        println!("{:?}", resp);
     }
 }
