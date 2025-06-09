@@ -29,7 +29,8 @@ auto_import_models! {
     get_trading_fees,
     get_trading_limits,
     trading_positions,
-    get_trading_positions_history
+    get_trading_positions_history,
+    get_transactions
 }
 
 #[derive(Debug, Default, Clone)]
