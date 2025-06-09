@@ -61,6 +61,6 @@ impl<const N: usize> Query<N> {
     }
 
     pub fn gen_signature(&self, settings: &UserSettings) -> Result<Zeroizing<String>, CryptoError> {
-        settings.generate_signature(&self.slice[..self.counter])
+        settings.gen_signature(&self.slice[..self.counter])
     }
 }

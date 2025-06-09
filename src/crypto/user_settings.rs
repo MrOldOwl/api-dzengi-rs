@@ -22,7 +22,7 @@ impl UserSettings {
         }
     }
 
-    pub fn generate_signature(
+    pub fn gen_signature(
         &self,
         query_pairs: &[(impl AsRef<str>, impl AsRef<str>)],
     ) -> Result<Zeroizing<String>, CryptoError> {
