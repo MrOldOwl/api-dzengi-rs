@@ -2,14 +2,14 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::{TransactionDtoResponse, TransactionsRequest},
+    models::{RangeRequest, TransactionDtoResponse},
     switch_url,
 };
 
 impl Version2<'_> {
     pub async fn transactions(
         &self,
-        request: TransactionsRequest,
+        request: RangeRequest,
     ) -> DzengiRestClientResult<Vec<TransactionDtoResponse>> {
         let settings = self.settings()?;
 
@@ -32,7 +32,7 @@ impl Version2<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{crypto::UserSettings, models::TransactionsRequest, rest_api::DzengiRestClient};
+    use crate::{crypto::UserSettings, models::RangeRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {
@@ -45,11 +45,7 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        let resp = rest
-            .v2()
-            .transactions(TransactionsRequest::new())
-            .await
-            .unwrap();
+        let resp = rest.v2().transactions(RangeRequest::new()).await.unwrap();
 
         println!("{:?}", resp)
     }

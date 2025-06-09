@@ -2,14 +2,14 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::{CancelOrderRequest, CancelOrderResponse},
+    models::{CancelOrderResponse, OrderRequest},
     switch_url,
 };
 
 impl Version2<'_> {
     pub async fn order_cancel(
         &self,
-        request: CancelOrderRequest,
+        request: OrderRequest,
     ) -> DzengiRestClientResult<CancelOrderResponse> {
         let settings = self.settings()?;
 
@@ -33,7 +33,7 @@ impl Version2<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{crypto::UserSettings, models::CancelOrderRequest, rest_api::DzengiRestClient};
+    use crate::{crypto::UserSettings, models::OrderRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {
@@ -50,7 +50,7 @@ mod test {
         //TODO: create order in demo
         let resp = rest
             .v2()
-            .order_cancel(CancelOrderRequest::new("BTC/USD".into(), "ID".into()))
+            .order_cancel(OrderRequest::new("BTC/USD".into(), "ID".into()))
             .await;
 
         match resp {

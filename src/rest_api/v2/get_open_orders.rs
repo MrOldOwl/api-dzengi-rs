@@ -2,14 +2,14 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::{OpenOrdersRequest, OpenOrdersResponse},
+    models::{OpenOrdersResponse, SymbolWithRecvRequest},
     switch_url,
 };
 
 impl Version2<'_> {
     pub async fn open_orders(
         &self,
-        request: OpenOrdersRequest,
+        request: SymbolWithRecvRequest,
     ) -> DzengiRestClientResult<Vec<OpenOrdersResponse>> {
         let settings = self.settings()?;
 
@@ -32,7 +32,7 @@ impl Version2<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{crypto::UserSettings, models::OpenOrdersRequest, rest_api::DzengiRestClient};
+    use crate::{crypto::UserSettings, models::SymbolWithRecvRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {
@@ -47,7 +47,7 @@ mod test {
 
         let resp = rest
             .v2()
-            .open_orders(OpenOrdersRequest::new())
+            .open_orders(SymbolWithRecvRequest::new())
             .await
             .unwrap();
 

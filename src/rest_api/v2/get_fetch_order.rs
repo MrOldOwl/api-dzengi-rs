@@ -2,14 +2,14 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::{FetchOrderRequest, FetchOrderResponse},
+    models::{FetchOrderResponse, OrderRequest},
     switch_url,
 };
 
 impl Version2<'_> {
     pub async fn fetch_order(
         &self,
-        request: FetchOrderRequest,
+        request: OrderRequest,
     ) -> DzengiRestClientResult<FetchOrderResponse> {
         let settings = self.settings()?;
 
@@ -32,7 +32,7 @@ impl Version2<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{crypto::UserSettings, models::FetchOrderRequest, rest_api::DzengiRestClient};
+    use crate::{crypto::UserSettings, models::OrderRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {
@@ -49,7 +49,7 @@ mod test {
         //TODO: CREATE ORDER IN DEMO
         let resp = rest
             .v2()
-            .fetch_order(FetchOrderRequest::new("BTC/USD_LEVERAGE".into(), "".into()))
+            .fetch_order(OrderRequest::new("BTC/USD_LEVERAGE".into(), "".into()))
             .await
             .unwrap();
 

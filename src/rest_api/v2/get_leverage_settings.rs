@@ -2,14 +2,14 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::{LeverageSettingsRequest, LeverageSettingsResponse},
+    models::{LeverageSettingsResponse, SymbolWithRecvRequest},
     switch_url,
 };
 
 impl Version2<'_> {
     pub async fn leverage_settings(
         &self,
-        request: LeverageSettingsRequest,
+        request: SymbolWithRecvRequest,
     ) -> DzengiRestClientResult<LeverageSettingsResponse> {
         let settings = self.settings()?;
 
@@ -32,9 +32,7 @@ impl Version2<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{
-        crypto::UserSettings, models::LeverageSettingsRequest, rest_api::DzengiRestClient,
-    };
+    use crate::{crypto::UserSettings, models::SymbolWithRecvRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {
@@ -49,7 +47,7 @@ mod test {
 
         let resp = rest
             .v2()
-            .leverage_settings(LeverageSettingsRequest::new("BTC/USD_LEVERAGE".into()))
+            .leverage_settings(SymbolWithRecvRequest::new("BTC/USD_LEVERAGE".into()))
             .await
             .unwrap();
 
