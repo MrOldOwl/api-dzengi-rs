@@ -45,6 +45,7 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
+        // TODO: req invalid api
         let resp = rest
             .v2()
             .my_trades(MyTradesRequest::new("LTC/BTC".into()))

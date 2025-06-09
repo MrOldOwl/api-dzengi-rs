@@ -50,7 +50,7 @@ mod test {
         //TODO: create order in demo
         let resp = rest
             .v2()
-            .order_cancel(OrderRequest::new("BTC/USD".into(), "ID".into()))
+            .order_cancel(OrderRequest::new("BTC/USD_LEVERAGE".into(), "ID".into()))
             .await;
 
         match resp {

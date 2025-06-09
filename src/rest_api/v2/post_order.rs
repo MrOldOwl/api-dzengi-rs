@@ -52,10 +52,11 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
+        // TODO: req invalid api
         let resp = rest
             .v2()
             .order_create(CreateOrderRequest::new(
-                "XRP/USD".into(),
+                "XRP/USD_LEVERAGE".into(),
                 Side::Buy,
                 1.0,
                 OrderType::Market,

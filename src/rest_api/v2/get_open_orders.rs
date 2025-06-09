@@ -47,7 +47,7 @@ mod test {
 
         let resp = rest
             .v2()
-            .open_orders(SymbolWithRecvRequest::new("symbol".into()))
+            .open_orders(SymbolWithRecvRequest::new("BTC/USD".into()))
             .await
             .unwrap();
 

@@ -47,7 +47,7 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        //TODO: create order in demo
+        //TODO: create order in demo; Combination of parameters invalid
         let resp = rest
             .v2()
             .order_change(ChangeOrderRequest::new("id".into()))

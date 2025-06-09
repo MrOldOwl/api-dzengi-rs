@@ -11,7 +11,7 @@ pub struct PositionDto {
     pub created_timestamp: i64,
     pub currency: String,
     pub id: Uuid,
-    pub instrument_id: i64,
+    pub instrument_id: Option<i64>,
     pub margin: f64,
     pub open_price: f64,
     pub open_quantity: f64,
