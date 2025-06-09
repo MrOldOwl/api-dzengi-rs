@@ -2,17 +2,9 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TradingPositionCloseAllResponse,
+    models::{CloseTradingPositionRequest, TradingPositionCloseAllResponse},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct CloseTradingPositionRequest {
-    pub position_id: String,
-    pub recv_window: Option<u64>,
-}
 
 impl Version2<'_> {
     pub async fn close_trading_position(
@@ -41,8 +33,7 @@ mod test {
     use env_file_reader::read_file;
 
     use crate::{
-        crypto::UserSettings,
-        rest_api::{CloseTradingPositionRequest, DzengiRestClient},
+        crypto::UserSettings, models::CloseTradingPositionRequest, rest_api::DzengiRestClient,
     };
 
     #[tokio::test]

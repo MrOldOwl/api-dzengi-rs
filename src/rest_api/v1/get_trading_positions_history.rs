@@ -2,20 +2,9 @@ use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TradingPositionHistoryResponse,
+    models::{TradingPositionHistoryResponse, TradingPositionsHistoryRequest},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct TradingPositionsHistoryRequest {
-    pub symbol: String,
-    pub recv_window: Option<u64>,
-    pub limit: Option<usize>,
-    pub from: Option<u128>,
-    pub to: Option<u128>,
-}
 
 impl Version1<'_> {
     pub async fn trading_positions_history(
@@ -44,8 +33,7 @@ mod test {
     use env_file_reader::read_file;
 
     use crate::{
-        crypto::UserSettings,
-        rest_api::{DzengiRestClient, TradingPositionsHistoryRequest},
+        crypto::UserSettings, models::TradingPositionsHistoryRequest, rest_api::DzengiRestClient,
     };
 
     #[tokio::test]

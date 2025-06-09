@@ -2,17 +2,9 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::AccountResponse,
+    models::{AccountInfoRequest, AccountResponse},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, Default, Copy, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct AccountInfoRequest {
-    pub show_zero_balance: Option<bool>,
-    pub recv_window: Option<u64>,
-}
 
 impl Version2<'_> {
     pub async fn account_info(
@@ -40,10 +32,7 @@ impl Version2<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{
-        crypto::UserSettings,
-        rest_api::{AccountInfoRequest, DzengiRestClient},
-    };
+    use crate::{crypto::UserSettings, models::AccountInfoRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {

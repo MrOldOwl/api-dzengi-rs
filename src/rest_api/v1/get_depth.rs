@@ -2,17 +2,9 @@ use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
-    models::DepthResponse,
+    models::{DepthRequest, DepthResponse},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct DepthRequest {
-    pub symbol: String,
-    pub limit: Option<usize>,
-}
 
 impl Version1<'_> {
     pub async fn depth(&self, request: DepthRequest) -> DzengiRestClientResult<DepthResponse> {
@@ -29,7 +21,7 @@ impl Version1<'_> {
 
 #[cfg(test)]
 mod test {
-    use crate::rest_api::{DepthRequest, DzengiRestClient};
+    use crate::{models::DepthRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {

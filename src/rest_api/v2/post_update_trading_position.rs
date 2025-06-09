@@ -2,23 +2,9 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TradingPositionUpdateResponse,
+    models::{TradingPositionUpdateResponse, UpdateTradingPositionRequest},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, RequestMethods)]
-pub struct UpdateTradingPositionRequest {
-    pub position_id: String,
-    pub recv_window: Option<u64>,
-    pub guaranteed_stop_loss: Option<bool>,
-    pub profit_distance: Option<f64>,
-    pub stop_distance: Option<f64>,
-    pub stop_loss: Option<f64>,
-    pub take_profit: Option<f64>,
-    pub trailing_stop_loss: Option<bool>,
-}
 
 impl Version2<'_> {
     pub async fn update_trading_position(
@@ -48,8 +34,7 @@ mod test {
     use env_file_reader::read_file;
 
     use crate::{
-        crypto::UserSettings,
-        rest_api::{DzengiRestClient, UpdateTradingPositionRequest},
+        crypto::UserSettings, models::UpdateTradingPositionRequest, rest_api::DzengiRestClient,
     };
 
     #[tokio::test]

@@ -2,17 +2,9 @@ use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::OpenOrdersResponse,
+    models::{OpenOrdersRequest, OpenOrdersResponse},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct OpenOrdersRequest {
-    pub symbol: Option<String>,
-    pub recv_window: Option<u64>,
-}
 
 impl Version1<'_> {
     pub async fn open_orders(
@@ -40,10 +32,7 @@ impl Version1<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{
-        crypto::UserSettings,
-        rest_api::{DzengiRestClient, OpenOrdersRequest},
-    };
+    use crate::{crypto::UserSettings, models::OpenOrdersRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {

@@ -2,19 +2,9 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::TransactionDtoResponse,
+    models::{TransactionDtoResponse, TransactionsRequest},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct TransactionsRequest {
-    pub recv_window: Option<u64>,
-    pub limit: Option<usize>,
-    pub start_time: Option<u128>,
-    pub end_time: Option<u128>,
-}
 
 impl Version2<'_> {
     pub async fn transactions(
@@ -42,10 +32,7 @@ impl Version2<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{
-        crypto::UserSettings,
-        rest_api::{DzengiRestClient, TransactionsRequest},
-    };
+    use crate::{crypto::UserSettings, models::TransactionsRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {

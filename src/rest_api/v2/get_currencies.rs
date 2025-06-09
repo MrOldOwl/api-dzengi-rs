@@ -2,8 +2,7 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::CurrencyDtoResponse,
-    response_models::RecvWindowRequest,
+    models::{CurrencyDtoResponse, RecvWindowRequest},
     switch_url,
 };
 
@@ -33,9 +32,7 @@ impl Version2<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{
-        crypto::UserSettings, response_models::RecvWindowRequest, rest_api::DzengiRestClient,
-    };
+    use crate::{crypto::UserSettings, models::RecvWindowRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {

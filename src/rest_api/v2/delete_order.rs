@@ -2,18 +2,9 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::CancelOrderResponse,
+    models::{CancelOrderRequest, CancelOrderResponse},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, RequestMethods)]
-pub struct CancelOrderRequest {
-    pub symbol: String,
-    pub order_id: String,
-    pub recv_window: Option<u64>,
-}
 
 impl Version2<'_> {
     pub async fn order_cancel(
@@ -42,10 +33,7 @@ impl Version2<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{
-        crypto::UserSettings,
-        rest_api::{CancelOrderRequest, DzengiRestClient},
-    };
+    use crate::{crypto::UserSettings, models::CancelOrderRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {

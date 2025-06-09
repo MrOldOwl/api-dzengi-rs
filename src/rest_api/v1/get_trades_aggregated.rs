@@ -2,19 +2,9 @@ use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
-    models::AggTrades,
+    models::{AggTrades, AggTradesRequest},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct AggTradesRequest {
-    pub symbol: String,
-    pub limit: Option<usize>,
-    pub start_time: Option<u128>,
-    pub end_time: Option<u128>,
-}
 
 impl Version1<'_> {
     pub async fn trades_aggregated(
@@ -34,7 +24,7 @@ impl Version1<'_> {
 
 #[cfg(test)]
 mod test {
-    use crate::rest_api::{AggTradesRequest, DzengiRestClient};
+    use crate::{models::AggTradesRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {

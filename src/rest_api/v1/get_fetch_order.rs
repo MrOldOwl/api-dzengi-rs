@@ -2,18 +2,9 @@ use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::FetchOrderResponse,
+    models::{FetchOrderRequest, FetchOrderResponse},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct FetchOrderRequest {
-    pub symbol: String,
-    pub order_id: String,
-    pub recv_window: Option<u64>,
-}
 
 impl Version1<'_> {
     pub async fn fetch_order(
@@ -41,10 +32,7 @@ impl Version1<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{
-        crypto::UserSettings,
-        rest_api::{DzengiRestClient, FetchOrderRequest},
-    };
+    use crate::{crypto::UserSettings, models::FetchOrderRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {

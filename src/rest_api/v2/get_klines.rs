@@ -1,25 +1,10 @@
 use super::Version2;
 use crate::{
-    enums::Interval,
     errors::DzengiRestClientResult,
     help::{AutoToJson, Query},
-    models::KlinesResponse,
+    models::{KlinesRequest, KlinesResponse},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct KlinesRequest {
-    pub symbol: String,
-    pub interval: Interval,
-    #[serde(rename = "type")]
-    pub kline_type: Option<String>,
-    pub price_type: Option<String>,
-    pub limit: Option<usize>,
-    pub start_time: Option<u128>,
-    pub end_time: Option<u128>,
-}
 
 impl Version2<'_> {
     pub async fn klines(
@@ -39,10 +24,7 @@ impl Version2<'_> {
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        enums::Interval,
-        rest_api::{DzengiRestClient, KlinesRequest},
-    };
+    use crate::{enums::Interval, models::KlinesRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {

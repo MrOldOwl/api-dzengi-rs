@@ -2,19 +2,9 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::EditExchangeOrderResponse,
+    models::{ChangeOrderRequest, EditExchangeOrderResponse},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, RequestMethods)]
-pub struct ChangeOrderRequest {
-    pub order_id: String,
-    pub recv_window: Option<u64>,
-    pub expire_timestamp: Option<i64>,
-    pub price: Option<f64>,
-}
 
 impl Version2<'_> {
     pub async fn order_change(
@@ -43,10 +33,7 @@ impl Version2<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{
-        crypto::UserSettings,
-        rest_api::{ChangeOrderRequest, DzengiRestClient},
-    };
+    use crate::{crypto::UserSettings, models::ChangeOrderRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {

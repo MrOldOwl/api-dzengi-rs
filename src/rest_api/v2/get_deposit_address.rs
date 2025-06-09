@@ -2,17 +2,9 @@ use super::Version2;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::BlockchainAddressResponse,
+    models::{BlockchainAddressResponse, DepositAddressRequest},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct DepositAddressRequest {
-    pub coin: String,
-    pub recv_window: Option<u64>,
-}
 
 impl Version2<'_> {
     pub async fn deposit_address(
@@ -40,10 +32,7 @@ impl Version2<'_> {
 mod test {
     use env_file_reader::read_file;
 
-    use crate::{
-        crypto::UserSettings,
-        rest_api::{DepositAddressRequest, DzengiRestClient},
-    };
+    use crate::{crypto::UserSettings, models::DepositAddressRequest, rest_api::DzengiRestClient};
 
     #[tokio::test]
     async fn test() {

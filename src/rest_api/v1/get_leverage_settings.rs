@@ -2,17 +2,9 @@ use super::Version1;
 use crate::{
     errors::DzengiRestClientResult,
     help::{AutoToJson, DefaultKeys, Query},
-    models::LeverageSettingsResponse,
+    models::{LeverageSettingsRequest, LeverageSettingsResponse},
     switch_url,
 };
-use macr::RequestMethods;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
-pub struct LeverageSettingsRequest {
-    pub symbol: String,
-    pub recv_window: Option<u64>,
-}
 
 impl Version1<'_> {
     pub async fn leverage_settings(
@@ -41,8 +33,7 @@ mod test {
     use env_file_reader::read_file;
 
     use crate::{
-        crypto::UserSettings,
-        rest_api::{DzengiRestClient, LeverageSettingsRequest},
+        crypto::UserSettings, models::LeverageSettingsRequest, rest_api::DzengiRestClient,
     };
 
     #[tokio::test]
