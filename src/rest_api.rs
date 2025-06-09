@@ -32,7 +32,8 @@ auto_import_models! {
     get_trading_positions_history,
     get_transactions,
     post_update_trading_order,
-    post_update_trading_position
+    post_update_trading_position,
+    get_withdrawals
 }
 
 #[derive(Debug, Default, Clone)]

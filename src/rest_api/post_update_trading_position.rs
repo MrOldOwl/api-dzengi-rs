@@ -64,7 +64,7 @@ mod test {
 
         rest.calc_correction_with_server().await.unwrap();
 
-        //TODO: create order
+        //TODO: create order; Combination of parameters invalid
         let resp = rest
             .update_trading_position(UpdateTradingPositionRequest::new("id".into()))
             .await;
