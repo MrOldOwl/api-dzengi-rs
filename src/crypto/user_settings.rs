@@ -30,9 +30,7 @@ impl UserSettings {
             return Err(CryptoError::ParamsEmpty);
         }
 
-        let mut query_combine = query_pairs
-            .iter()
-            .map(|x| format!("{}={}", x.0.as_ref(), x.1.as_ref()));
+        let mut query_combine = query_pairs.iter().map(Self::formatting);
 
         let mut query_string = query_combine.next().unwrap();
         while let Some(pair) = query_combine.next() {
@@ -48,5 +46,15 @@ impl UserSettings {
         mac.update(query_string.as_bytes());
 
         Ok(hex::encode(mac.finalize().into_bytes()).into())
+    }
+
+    fn formatting(value: &(impl AsRef<str>, impl AsRef<str>)) -> String {
+        let key = value.0.as_ref();
+        let value = value.1.as_ref();
+        if key == "symbol" {
+            format!("{}={}", key, value.replace("/", "%2F"))
+        } else {
+            format!("{}={}", key, value)
+        }
     }
 }
