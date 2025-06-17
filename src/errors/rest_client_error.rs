@@ -2,6 +2,7 @@ use super::CryptoError;
 use crate::errors::CorrectionTimeError;
 use std::fmt::Display;
 use thiserror::Error;
+use tokio_tungstenite::tungstenite;
 
 pub type DzengiRestClientResult<T> = Result<T, DzengiRestClientError>;
 
@@ -34,4 +35,6 @@ pub enum DzengiRestClientError {
     Serde(#[from] serde_json::Error),
     #[error("{0}")]
     CorrectionTime(#[from] CorrectionTimeError),
+    #[error("{0}")]
+    Tungstenite(#[from] tungstenite::Error),
 }

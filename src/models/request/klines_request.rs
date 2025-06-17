@@ -1,7 +1,9 @@
 use crate::{enums::Interval, help::Query};
 use macr::RequestMethods;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, RequestMethods)]
 pub struct KlinesRequest {
     pub symbol: String,

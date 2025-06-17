@@ -21,6 +21,6 @@ where
     D: Deserializer<'de>,
 {
     use serde::de::Error;
-    let s: &str = Deserialize::deserialize(deserializer)?;
+    let s: String = Deserialize::deserialize(deserializer)?;
     Ok(s.parse().map_err(|_| D::Error::custom("bad price parse"))?)
 }

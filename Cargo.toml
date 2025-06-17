@@ -1,6 +1,6 @@
 [package]
 name = "api-dzengi-rs"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 authors = ["MrOldOwl"]
 repository = "https://github.com/MrOldOwl/api-dzengi-rs"
@@ -15,16 +15,19 @@ tokio = { version = "^1", features = ["macros", "test-util"] }
 macr = { path = "./macr" }
 thiserror = { version = "^2.0" }
 reqwest = { version = "^0.12", features = ["json"] }
-tokio = { version = "^1", features = ["sync"] }
+tokio = { version = "^1", features = ["full"] }
+tokio-tungstenite = { version = "^0.27", features = ["native-tls"] }
+futures = "^0.3"
 hex = { version = "^0.4" }
 hmac = { version = "^0.12" }
 sha2 = { version = "^0.10" }
 secstr = { version = "^0.5" }
 secrecy = { version = "^0.10" }
-zeroize = { version = "^1.8.0" }
+zeroize = { version = "^1.8" }
 uuid = { version = "^1", features = ["serde"] }
 serde = { version = "^1", features = ["derive"] }
+serde_with = { version = "^1" }
 serde_json = { version = "^1" }
 validator = { version = "^0.20", features = ["derive"] }
-strum_macros = "^0.27"
 strum = { version = "^0.27", features = ["derive"] }
+strum_macros = "^0.27"
