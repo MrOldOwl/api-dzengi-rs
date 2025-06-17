@@ -20,7 +20,7 @@ impl Version1<'_> {
         let signature = query.gen_signature(settings)?;
 
         self.client
-            .post(switch_url!("/api/v1/order", self.demo))
+            .post(switch_url!("/v1/order", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))

@@ -4,7 +4,7 @@ use crate::{errors::DzengiRestClientResult, help::AutoToJson, models::ServerTime
 impl Version1<'_> {
     pub async fn server_time(&self) -> DzengiRestClientResult<ServerTime> {
         self.client
-            .get(switch_url!("/api/v2/time", self.demo))
+            .get(switch_url!("/v1/time", self.demo))
             .send_and_json()
             .await
     }

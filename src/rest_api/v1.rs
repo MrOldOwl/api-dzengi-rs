@@ -45,6 +45,6 @@ impl<'a> Deref for Version1<'a> {
     type Target = DzengiRestClient;
 
     fn deref(&self) -> &Self::Target {
-        self.0
+        &self.0
     }
 }

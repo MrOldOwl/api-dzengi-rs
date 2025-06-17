@@ -12,7 +12,7 @@ impl Version1<'_> {
         request.fill_query(&mut query);
 
         self.client
-            .get(switch_url!("/api/v1/ticker/24hr", self.demo))
+            .get(switch_url!("/v1/ticker/24hr", self.demo))
             .query(&query.as_slice())
             .send_and_json()
             .await

@@ -19,7 +19,7 @@ impl Version2<'_> {
         let signature = query.gen_signature(settings)?;
 
         self.client
-            .get(switch_url!("/api/v2/account", self.demo))
+            .get(switch_url!("/v2/account", self.demo))
             .header(DefaultKeys::api_key(), settings.api_key.as_str())
             .query(query.as_slice())
             .query(&DefaultKeys::signature(&signature))

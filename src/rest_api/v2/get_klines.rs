@@ -15,7 +15,7 @@ impl Version2<'_> {
         request.fill_query(&mut query);
 
         self.client
-            .get(switch_url!("/api/v2/klines", self.demo))
+            .get(switch_url!("/v2/klines", self.demo))
             .query(query.as_slice())
             .send_and_json()
             .await
