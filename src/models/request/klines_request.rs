@@ -1,5 +1,5 @@
 use crate::{enums::Interval, help::Query};
-use macr::RequestMethods;
+use api_dzengi_rs_macro::RequestMethods;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 

@@ -2,7 +2,7 @@ use crate::{
     enums::{OrderType, Side},
     help::Query,
 };
-use macr::RequestMethods;
+use api_dzengi_rs_macro::RequestMethods;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, RequestMethods)]
