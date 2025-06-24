@@ -4,6 +4,8 @@ version = "0.2.0"
 edition = "2024"
 authors = ["MrOldOwl"]
 repository = "https://github.com/MrOldOwl/api-dzengi-rs"
+description = "Library for interacting with the Dzengi API"
+readme = "README.md"
 
 [features]
 
