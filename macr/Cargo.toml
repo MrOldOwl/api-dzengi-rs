@@ -1,7 +1,11 @@
 [package]
-name = "macr"
+name = "api-dzengi-rs-macro"
 version = "0.1.0"
 edition = "2024"
+authors = ["MrOldOwl"]
+repository = "https://github.com/MrOldOwl/api-dzengi-rs"
+description = "Macro for Dzengi API lib"
+license = "MIT OR Apache-2.0"
 
 [lib]
 proc-macro = true
