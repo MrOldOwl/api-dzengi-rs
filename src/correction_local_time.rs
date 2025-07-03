@@ -55,6 +55,10 @@ impl CorrectionLocalTime {
         }
     }
 
+    pub fn correction(&self) -> CorrectionTime {
+        self.correction
+    }
+
     pub fn timestamp_now(&self) -> Result<u128, CorrectionTimeError> {
         let time = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
         Ok(match self.correction {
